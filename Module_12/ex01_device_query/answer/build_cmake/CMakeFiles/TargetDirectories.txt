@@ -1,0 +1,3 @@
+C:/Users/hmgics/projects/learn_cv_with_cpp/Module_12/ex01_device_query/answer/build_cmake/CMakeFiles/device_query.dir
+C:/Users/hmgics/projects/learn_cv_with_cpp/Module_12/ex01_device_query/answer/build_cmake/CMakeFiles/ALL_BUILD.dir
+C:/Users/hmgics/projects/learn_cv_with_cpp/Module_12/ex01_device_query/answer/build_cmake/CMakeFiles/ZERO_CHECK.dir

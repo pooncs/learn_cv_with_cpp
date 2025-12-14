@@ -1,0 +1,10 @@
+^C:\USERS\HMGICS\PROJECTS\LEARN_CV_WITH_CPP\MODULE_12\EX03_VECTOR_ADD\ANSWER\BUILD_CMAKE\CMAKEFILES\9FB4E02AD6A70CDF9CBDCB7FFAD254FF\GENERATE.STAMP.RULE
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/hmgics/projects/learn_cv_with_cpp/Module_12/ex03_vector_add/answer -BC:/Users/hmgics/projects/learn_cv_with_cpp/Module_12/ex03_vector_add/answer/build_cmake --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file C:/Users/hmgics/projects/learn_cv_with_cpp/Module_12/ex03_vector_add/answer/build_cmake/ex03_vector_add_answer.sln
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

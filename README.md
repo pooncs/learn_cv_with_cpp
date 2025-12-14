@@ -129,10 +129,6 @@ Some external lib can be found here: C:\Users\hmgics\projects\midas\3rdParty
 ---
 
 ## Phase 2: Intermediate (Associate - Senior)
-
-### Additional Foundational Exercises for Phase 2
-**Goal:** Improve concurrency, observability, and performance awareness.
-
 ### Module 06: Feature Detection & Matching
 **Goal:** Understanding sparse features for tracking and recognition.
 1.  **Harris Corners:** Implement Harris Corner Response calculation manually.
