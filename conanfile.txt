@@ -1,0 +1,21 @@
+[requires]
+yaml-cpp/0.8.0
+eigen/3.4.0
+benchmark/1.9.4
+gtest/1.17.0
+pybind11/3.0.1
+nlohmann_json/3.12.0
+spdlog/1.16.0
+
+[options]
+yaml-cpp/*:shared=True  # This forces Conan to use the shared (DLL) version of yaml-cpp
+# Prefer header-only spdlog to avoid linking against external fmt libraries, which can
+# conflict with other distributions (e.g., Open3D or vcpkg) and cause duplicate symbols.
+spdlog/*:header_only=True
+# Ensure spdlog does not vend its own fmt; rely on external fmt provided by dependencies.
+spdlog/*:fmt_external=True
+fmt/*:header_only=True
+
+[generators]
+CMakeDeps
+CMakeToolchain
