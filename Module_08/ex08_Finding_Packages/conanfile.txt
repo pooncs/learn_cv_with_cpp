@@ -1,0 +1,10 @@
+[requires]
+opencv/4.5.5
+libtiff/4.5.1
+
+[generators]
+CMakeDeps
+CMakeToolchain
+
+[layout]
+cmake_layout

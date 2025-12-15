@@ -1,0 +1,6 @@
+model:
+  name: "YOLOv8"
+  input_size: [640, 640]
+  confidence_threshold: 1.5
+dataset:
+  path: "/data/coco"

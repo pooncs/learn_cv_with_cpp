@@ -1,0 +1,3 @@
+#pragma once
+
+void bilateralFilterWrapper(const unsigned char* d_in, unsigned char* d_out, int width, int height, float sigma_s, float sigma_r);
