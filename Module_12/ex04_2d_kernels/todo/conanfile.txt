@@ -1,0 +1,11 @@
+[requires]
+fmt/10.1.1
+gtest/1.14.0
+opencv/4.8.1
+
+[generators]
+CMakeDeps
+CMakeToolchain
+
+[layout]
+cmake_layout

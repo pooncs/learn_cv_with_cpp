@@ -1,0 +1,11 @@
+[requires]
+opencv/4.5.5
+libtiff/4.5.1
+gtest/1.11.0
+
+[generators]
+CMakeDeps
+CMakeToolchain
+
+[layout]
+cmake_layout
