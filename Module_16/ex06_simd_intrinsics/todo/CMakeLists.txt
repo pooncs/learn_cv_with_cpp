@@ -1,0 +1,27 @@
+cmake_minimum_required(VERSION 3.15)
+project(ex06_simd_todo CXX)
+
+find_package(fmt REQUIRED)
+find_package(GTest REQUIRED)
+
+add_executable(main src/main.cpp)
+target_include_directories(main PRIVATE include)
+target_link_libraries(main PRIVATE fmt::fmt)
+target_compile_features(main PRIVATE cxx_std_17)
+
+if(MSVC)
+    target_compile_options(main PRIVATE /arch:AVX2)
+else()
+    target_compile_options(main PRIVATE -mavx2 -mfma)
+endif()
+
+enable_testing()
+add_executable(test_simd tests/test_simd.cpp)
+target_include_directories(test_simd PRIVATE include)
+target_link_libraries(test_simd PRIVATE GTest::gtest GTest::gtest_main)
+if(MSVC)
+    target_compile_options(test_simd PRIVATE /arch:AVX2)
+else()
+    target_compile_options(test_simd PRIVATE -mavx2 -mfma)
+endif()
+add_test(NAME SIMDTest COMMAND test_simd)

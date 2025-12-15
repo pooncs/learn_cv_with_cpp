@@ -1,0 +1,11 @@
+[requires]
+benchmark/1.8.3
+fmt/10.1.1
+gtest/1.14.0
+
+[generators]
+CMakeDeps
+CMakeToolchain
+
+[layout]
+cmake_layout
