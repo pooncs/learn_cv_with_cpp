@@ -1,0 +1,10 @@
+[requires]
+qt/6.6.1
+gtest/1.14.0
+
+[generators]
+CMakeDeps
+CMakeToolchain
+
+[layout]
+cmake_layout

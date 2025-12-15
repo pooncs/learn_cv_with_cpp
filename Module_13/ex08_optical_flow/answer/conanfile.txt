@@ -1,0 +1,12 @@
+[requires]
+opencv/4.5.5
+
+[options]
+opencv/*:with_tiff=False
+
+[generators]
+CMakeDeps
+CMakeToolchain
+
+[layout]
+cmake_layout
