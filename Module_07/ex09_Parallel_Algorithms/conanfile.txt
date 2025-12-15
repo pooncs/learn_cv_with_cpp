@@ -1,0 +1,10 @@
+[requires]
+gtest/1.14.0
+onetbb/2021.10.0 # Just in case
+
+[generators]
+CMakeDeps
+CMakeToolchain
+
+[layout]
+cmake_layout

@@ -16,7 +16,7 @@
 *.ilk
 
 # Debugger Files
-*.pdb
+*.pdb   
 
 # Compiled Dynamic libraries
 *.so
