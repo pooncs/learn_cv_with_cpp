@@ -1,9 +1,6 @@
 [requires]
-opencv/4.8.1
+qt/6.6.1
 gtest/1.14.0
-
-[options]
-opencv*:with_jpeg=libjpeg-turbo
 
 [generators]
 CMakeDeps

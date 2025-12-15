@@ -1,0 +1,30 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        build_type: [Release]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install Conan
+      run: pip install conan
+
+    - name: Configure CMake
+      run: |
+        conan profile detect --force
+        conan install . --output-folder=build --build=missing -s build_type=${{ matrix.build_type }}
+        cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=build/conan_toolchain.cmake -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+      
+    - name: Build
+      run: cmake --build build --config ${{ matrix.build_type }}
+      
+    - name: Test
+      run: ctest --test-dir build --output-on-failure -C ${{ matrix.build_type }}

@@ -1,9 +1,7 @@
 [requires]
-opencv/4.8.1
+fmt/10.1.1
 gtest/1.14.0
-
-[options]
-opencv*:with_jpeg=libjpeg-turbo
+openssl/3.2.0
 
 [generators]
 CMakeDeps

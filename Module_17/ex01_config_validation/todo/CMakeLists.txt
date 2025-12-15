@@ -15,5 +15,5 @@ target_link_libraries(main PRIVATE config_lib)
 
 enable_testing()
 add_executable(test_config tests/test_config.cpp)
-target_link_libraries(test_config PRIVATE config_lib GTest::gtest_main)
+target_link_libraries(test_config PRIVATE config_lib GTest::gtest GTest::gtest_main)
 add_test(NAME ConfigTest COMMAND test_config)
