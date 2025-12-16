@@ -1,8 +1,17 @@
 #include <QApplication>
-#include <QWidget>
-int main(int argc, char** argv) {
+#include <QMainWindow>
+#include <QtCharts>
+
+int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
-    QWidget w;
-    w.show();
+
+    // TODO: Create BarSet and Series
+    
+    // TODO: Create Chart
+    
+    // TODO: Create ChartView
+    
+    // TODO: Show
+    
     return app.exec();
 }

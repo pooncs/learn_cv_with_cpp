@@ -8,6 +8,16 @@ Understand the performance characteristics of `std::vector` vs. `std::list` (and
 2.  Benchmark **Insertion** vs. **Random Access** vs. **Traversal**.
 3.  Learn why `std::vector` is almost always the default choice in Computer Vision.
 
+## Analogy: The Apartment Block vs. The Treasure Hunt
+*   **`std::vector` (The Apartment Block):** Everyone lives in the same building, in apartment 101, 102, 103...
+    *   *Visiting everyone:* You just walk down the hallway. Super fast.
+    *   *Finding #50:* You know exactly where it is (Math: Start + 50).
+    *   *Adding a room in the middle:* You have to knock down walls and move everyone's furniture down one spot. Expensive!
+*   **`std::list` (The Treasure Hunt):** Everyone lives in different houses all over the city.
+    *   *Visiting everyone:* You visit House 1, get the address for House 2, drive there, get the address for House 3... Slow (traffic/latency).
+    *   *Finding #50:* You have to visit #1 to find #2, to find #3... all the way to #50.
+    *   *Adding a house in the middle:* Just build it anywhere and update the address in the previous house's note. Fast!
+
 ## Practical Motivation
 In CV, an image is a contiguous block of memory (`width * height * channels`). Accessing pixels row-by-row is fast because the CPU prefetcher loads the next chunk of memory into the cache before you ask for it.
 *   **Vector:** Like an image row. Fast.

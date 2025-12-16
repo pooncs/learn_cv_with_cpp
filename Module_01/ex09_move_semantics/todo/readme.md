@@ -1,44 +1,51 @@
-# Exercise 09: Move Semantics (std::move)
+# Exercise 09: Move Semantics
 
 ## Goal
-Optimize a heavy `Matrix` class by implementing **Move Semantics**. Understand how to transfer ownership of resources (pointers) instead of copying them.
+Optimize a heavy `Matrix` class to support **Move Semantics**. You will see how "stealing" resources is much faster than copying them.
 
 ## Learning Objectives
-1.  L-values vs R-values (basics).
-2.  Implement a **Move Constructor**.
-3.  Implement a **Move Assignment Operator**.
-4.  Use `std::exchange` for cleaner pointer swapping.
+1.  Understand **L-values** (Named objects) vs **R-values** (Temporary objects).
+2.  Implement a **Move Constructor** and **Move Assignment Operator**.
+3.  Use `std::move` to cast an L-value to an R-value.
+4.  Follow the **Rule of Five**.
+
+## Analogy: The House Move
+*   **Copy (Deep Copy):** You want to move to a new house.
+    *   You buy brand new furniture identical to your old stuff.
+    *   You put it in the new house.
+    *   You destroy the old house with the old furniture inside.
+    *   *Result:* Huge waste of money and time.
+*   **Move (Shallow Copy / Steal):**
+    *   You take the furniture from the old house.
+    *   You put it in the new house.
+    *   The old house is now empty.
+    *   *Result:* Fast and efficient.
 
 ## Practical Motivation
-Imagine you have a function `get_image()` that returns a 4K image (24MB).
-*   **Copy:** `Image A = get_image();` -> Allocates new 24MB, copies data, deletes old 24MB. Slow!
-*   **Move:** `Image A = get_image();` -> A just takes the pointer from the temporary result. Zero allocation. Instant.
-
-## Theory
-*   **L-value:** Something with a name (e.g., variable `x`).
-*   **R-value:** A temporary (e.g., `get_image()`, `5`, `std::move(x)`).
-*   **Move Constructor:** Takes `Type&& other`. You steal `other`'s resources and leave `other` in a valid but empty state (e.g., pointer = nullptr).
+In CV, we handle large images (e.g., 4K resolution, 50MB).
+Passing `cv::Mat` by value *used* to be expensive if it triggered a deep copy. Modern `cv::Mat` uses reference counting (like `shared_ptr`), but if you write your own data structures (e.g., a Point Cloud buffer), you **must** implement move semantics to avoid unnecessary copies when returning from functions or resizing vectors.
 
 ## Step-by-Step Instructions
 
-### Task 1: Implement Move Constructor
-Open `src/main.cpp`. The `BigMatrix` class manages a raw `float* data`.
-*   Signature: `BigMatrix(BigMatrix&& other) noexcept`
-*   **Action:**
-    1.  Copy `other.data` pointer to `this->data`.
-    2.  Set `other.data` to `nullptr` (so its destructor doesn't free the memory we just stole).
-    3.  Copy `other.size`.
-    4.  Set `other.size` to 0.
+### Task 1: The Heavy Class
+Open `src/main.cpp`. The `Matrix` class manages a raw pointer `int* data`.
+*   It currently has a **Copy Constructor** (Expensive loop).
+*   It lacks Move operations.
 
-### Task 2: Use `std::move`
-In `main()`:
-1.  Create `BigMatrix m1(1000)`.
-2.  Move it to `m2`: `BigMatrix m2 = std::move(m1);`.
-3.  Verify that `m1` is now empty (pointer is null) and `m2` has the data.
+### Task 2: Implement Move Constructor
+Add `Matrix(Matrix&& other) noexcept`.
+1.  **Steal:** specific `this->data = other.data`.
+2.  **Nullify:** `other.data = nullptr`. (Crucial! Otherwise destructor will double-free).
 
-## Common Pitfalls
-*   **Using a Moved-from Object:** `std::cout << m1.data[0]` after move is Undefined Behavior (usually a crash).
-*   **Not marking `noexcept`:** If your move constructor isn't `noexcept`, `std::vector` might refuse to use it during resizing (it will copy instead).
+### Task 3: Implement Move Assignment
+Add `Matrix& operator=(Matrix&& other) noexcept`.
+1.  **Check Self-Assignment:** `if (this != &other)`.
+2.  **Clean Up:** `delete[] data` (Free current resource).
+3.  **Steal & Nullify:** Copy pointer, set other to null.
+
+### Task 4: Benchmark
+In `main`, we create a `vector<Matrix>` and push back a temporary.
+*   Compare the number of "Copy" prints vs "Move" prints.
 
 ## Verification
 Compile and run.
@@ -49,4 +56,4 @@ cmake ..
 cmake --build .
 ./main
 ```
-Output should confirm "Moved" and verify m1 is empty.
+Output should show "Move Constructor" being called instead of "Copy Constructor" when pushing back temporary objects.

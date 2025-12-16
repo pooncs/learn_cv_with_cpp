@@ -1,2 +1,9 @@
-#include <fmt/core.h>
-int main() { fmt::print("Todo: Implement ex02_g2o_ceres_basics\n"); return 0; }
+#include "pose_graph.hpp"
+#include <iostream>
+
+int main() {
+    std::cout << "Pose Graph Optimization Todo" << std::endl;
+    // TODO: Create nodes and edges
+    // TODO: Optimize
+    return 0;
+}

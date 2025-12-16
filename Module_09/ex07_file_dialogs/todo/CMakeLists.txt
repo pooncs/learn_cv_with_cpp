@@ -1,15 +1,17 @@
 cmake_minimum_required(VERSION 3.15)
 project(ex07_file_dialogs CXX)
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTORCC ON)
-set(CMAKE_AUTOUIC ON)
+
 find_package(Qt6 COMPONENTS Widgets REQUIRED)
 find_package(GTest REQUIRED)
+
 add_executable(main src/main.cpp)
 target_link_libraries(main PRIVATE Qt6::Widgets)
+
 enable_testing()
-add_executable(test_file_dialogs tests/test_file_dialogs.cpp)
-target_link_libraries(test_file_dialogs PRIVATE GTest::gtest_main Qt6::Widgets)
-add_test(NAME test_file_dialogs COMMAND test_file_dialogs)
+add_executable(test_dialogs tests/test_dialogs.cpp)
+target_link_libraries(test_dialogs PRIVATE GTest::gtest_main Qt6::Widgets)
+add_test(NAME test_dialogs COMMAND test_dialogs)

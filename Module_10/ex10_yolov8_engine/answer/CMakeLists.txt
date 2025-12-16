@@ -1,5 +1,19 @@
 cmake_minimum_required(VERSION 3.15)
-project(ex10_yolov8_engine CXX)
+project(ex10_yolov8_engine_answer CXX)
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-add_executable(main src/main.cpp)
+
+find_package(OpenCV REQUIRED)
+find_package(CUDAToolkit REQUIRED)
+
+find_path(TRT_INCLUDE_DIR NvInfer.h HINTS $ENV{TensorRT_ROOT} PATH_SUFFIXES include)
+find_library(TRT_LIB nvinfer HINTS $ENV{TensorRT_ROOT} PATH_SUFFIXES lib lib64)
+
+add_executable(yolo_app src/main.cpp)
+if (TRT_LIB)
+    target_include_directories(yolo_app PRIVATE ${TRT_INCLUDE_DIR})
+    target_link_libraries(yolo_app PRIVATE OpenCV::opencv ${TRT_LIB} CUDA::cudart)
+else()
+    target_link_libraries(yolo_app PRIVATE OpenCV::opencv)
+endif()

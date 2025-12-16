@@ -4,58 +4,63 @@
 Initialize dynamic and fixed-size Eigen matrices from arrays, standard containers, and files.
 
 ## Learning Objectives
-By completing this exercise, you will be able to:
-1.  Understand the difference between fixed-size (stack-allocated) and dynamic-size (heap-allocated) matrices in Eigen.
-2.  Use the comma initializer syntax for quick matrix filling.
-3.  Map standard C++ arrays or vectors to Eigen matrices without copying data.
-4.  Read matrix data from a text file into an Eigen matrix.
+1.  **Fixed vs. Dynamic:** Understand when to use `Matrix3f` (stack, fast) vs `MatrixXd` (heap, flexible).
+2.  **Comma Initializer:** Quick syntax `m << 1, 2, 3...`.
+3.  **Map Interface:** View raw memory (std::vector/array) as a Matrix without copying.
+4.  **File I/O:** Parse matrix data from text files.
+
+## Analogy: The Tic-Tac-Toe Grid vs. The Infinite Scroll
+*   **Fixed-Size Matrix (`Matrix3f`):** Like a **Tic-Tac-Toe Board**.
+    *   It is always 3x3.
+    *   You can draw it on a napkin (Stack).
+    *   The computer knows exactly where every cell is instantly. **Super Fast.**
+*   **Dynamic-Size Matrix (`MatrixXd`):** Like an **Excel Spreadsheet**.
+    *   You can keep adding rows forever.
+    *   You have to ask the OS for a big chunk of office space (Heap) to store it.
+    *   Slower, but necessary for things like "List of all points in a cloud".
 
 ## Practical Motivation
-In Computer Vision and Robotics, matrices are ubiquitous. 
-- **Fixed-size matrices** (like $3 \times 3$ rotation matrices or $4 \times 4$ transformation matrices) are small and performance-critical. Eigen optimizes these heavily using loop unrolling and stack allocation.
-- **Dynamic-size matrices** (like an image represented as a matrix, or a large point cloud) are determined at runtime.
-Knowing how to efficiently create and populate these structures is the first step to high-performance geometric computing.
+In CV, we use:
+*   **Fixed Matrices:** For geometry. Rotation ($3 \times 3$), Transformation ($4 \times 4$), Camera Intrinsics ($3 \times 3$).
+*   **Dynamic Matrices:** For data. Point Clouds ($N \times 3$), Images ($H \times W$), Feature Descriptors ($N \times 128$).
 
-## Theory & Background
-
-### Eigen Basics
-Eigen is a header-only C++ template library for linear algebra. The core class is `Eigen::Matrix<T, Rows, Cols>`.
-- `Eigen::Matrix3f`: Float, 3x3 (Fixed)
-- `Eigen::MatrixXd`: Double, Dynamic x Dynamic
-
-### Initialization Methods
-1.  **Comma Initializer**:
-    ```cpp
-    Eigen::Matrix3f m;
-    m << 1, 2, 3,
-         4, 5, 6,
-         7, 8, 9;
-    ```
-2.  **Map Interface**: Allows you to view a raw C-array as an Eigen matrix.
-    ```cpp
-    float data[] = {1, 2, 3, 4};
-    Eigen::Map<Eigen::Matrix2f> m(data);
-    ```
-3.  **From File**: Typically involves reading a stream and parsing values.
-
-## Implementation Tasks
+## Step-by-Step Instructions
 
 ### Task 1: Fixed-Size Initialization
-Create a $4 \times 4$ float matrix representing an identity transformation.
+Open `src/main.cpp`.
+*   Create a `Eigen::Matrix4f` named `identity`.
+*   Initialize it as an Identity matrix using `Eigen::Matrix4f::Identity()`.
+*   Print it.
 
 ### Task 2: Dynamic-Size Initialization
-Allocate a matrix of size $rows \times cols$ (provided by user input or hardcoded) and fill it with random values.
+*   Create a `Eigen::MatrixXd` named `randomMat`.
+*   Resize it to $3 \times 2$.
+*   Fill it with random values using `Eigen::MatrixXd::Random(rows, cols)`.
 
-### Task 3: Map from std::vector
-Given a `std::vector<float>` containing 9 elements, map it to a $3 \times 3$ Eigen matrix **without copying**.
+### Task 3: Map from std::vector (Zero-Copy)
+You have a `std::vector<float> vec` with 9 elements.
+*   **Goal:** Treat this vector as a $3 \times 3$ matrix.
+*   **Challenge:** C++ vectors are Row-Major (usually), but Eigen is Column-Major by default.
+*   **Task:** Use `Eigen::Map<Eigen::Matrix<float, 3, 3, Eigen::RowMajor>>` to wrap the vector data.
+*   *Note:* If you don't specify `RowMajor`, the matrix will look transposed because Eigen will read the data down columns instead of across rows.
 
 ### Task 4: Read from File
-Implement a function to read a matrix from `../../data/matrix.txt`. The file format is simple space-separated values.
+Open `src/matrix_utils.cpp`. Implement `readMatrix`.
+1.  Open the file using `std::ifstream`.
+2.  Read the entire file into a `std::vector<double>` first (since we don't know dimensions yet, or assuming a specific format).
+    *   *Simplification:* For this task, assume the file contains a square matrix or just read it into a known size, OR simpler: read rows/cols from the first line if the format allows.
+    *   *Robust Approach:* Read line by line. Count rows. Count numbers in first line for cols.
+    *   Let's stick to the robust approach:
+        *   Read lines into a `vector<vector<double>>`.
+        *   Check that all rows have same width.
+        *   Copy into `Eigen::MatrixXd`.
 
-## Common Pitfalls
-- **Row-Major vs Column-Major**: Eigen defaults to **Column-Major** storage. Standard C/C++ 2D arrays are Row-Major. When mapping, be careful of the order.
-- **Alignment**: Fixed-size vectorizable matrices (like `Vector4f`) require 16-byte alignment. If you use them as class members, you might need `EIGEN_MAKE_ALIGNED_OPERATOR_NEW`.
-
-## Recommended Functions
-- `Eigen::Matrix::Identity()`, `Eigen::Matrix::Zero()`, `Eigen::Matrix::Random()`
-- `Eigen::Map<Type>(ptr)`
+## Verification
+Compile and run.
+```bash
+cd todo
+mkdir build && cd build
+cmake ..
+cmake --build .
+./main
+```

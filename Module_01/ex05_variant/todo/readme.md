@@ -8,6 +8,16 @@ Implement polymorphism without inheritance (and vtables) using **`std::variant`*
 2.  Use `std::visit` to apply a function (visitor) to the stored value.
 3.  Check active types using `std::holds_alternative` or `std::get_if`.
 
+## Analogy: The Transformer Toy vs. The Mystery Box
+*   **Old C++ (`union` or Inheritance):**
+    *   *Union:* A box labeled "Content". You have to remember if you put a cat or a bomb inside. If you guess wrong and pull the pin... boom. (Unsafe).
+    *   *Inheritance:* A box containing a slip of paper (pointer) telling you where the actual object is stored (Heap). Slow access.
+*   **Modern C++ (`std::variant`):** A **Transformer Toy**.
+    *   It IS a Car, OR it IS a Plane.
+    *   It remembers what form it's currently in.
+    *   You hold the toy directly (Stack/Contiguous memory), not a pointer to it.
+    *   *Visitor:* You say "Attack!", and the toy executes the attack move specific to its current form (Car runs over, Plane shoots).
+
 ## Practical Motivation
 In a CV pipeline, a "Detection" might be:
 1.  A **Bounding Box** (Rectangle).

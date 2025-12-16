@@ -8,6 +8,18 @@ Master C++ Lambda Expressions to write concise, functional-style code for sortin
 2.  Capture modes: `[=]` (value), `[&]` (reference), `[this]`, and specific captures.
 3.  Use lambdas with STL algorithms (`std::sort`, `std::copy_if`, `std::transform`).
 
+## Analogy: The Custom Robot Worker vs. The HR Hiring Process
+*   **Old C++ (Functors/Function Pointers):** You need to sort a list of boxes.
+    *   You have to leave the factory floor (the function).
+    *   Go to HR (Global Scope).
+    *   Write a job description (Struct/Class).
+    *   Hire a worker (Instantiate).
+    *   Bring them back to do the job.
+    *   *Overkill for a 2-second task.*
+*   **Modern C++ (Lambdas):** You build a tiny, disposable robot **right on the spot**.
+    *   You tell it: "Hey, take these variables from my pocket (Capture), and sort these boxes based on weight."
+    *   It does the job immediately and disappears.
+
 ## Practical Motivation
 CV code involves lots of lists: detections, keypoints, matches.
 *   "Sort matches by distance."

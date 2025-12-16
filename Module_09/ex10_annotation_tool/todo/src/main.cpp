@@ -1,8 +1,15 @@
 #include <QApplication>
 #include <QWidget>
-int main(int argc, char** argv) {
+#include <nlohmann/json.hpp>
+
+// TODO: Define AnnotatorWidget class
+
+int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
-    QWidget w;
-    w.show();
+
+    // TODO: Create AnnotatorWidget
+    
+    // TODO: Setup UI with buttons (Open Image, Save JSON)
+    
     return app.exec();
 }

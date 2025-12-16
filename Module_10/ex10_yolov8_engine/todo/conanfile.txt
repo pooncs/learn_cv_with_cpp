@@ -1,5 +1,17 @@
 [requires]
+opencv/4.5.5
 gtest/1.14.0
+
+[options]
+opencv*:with_ffmpeg=False
+opencv*:with_tiff=False
+opencv*:with_webp=False
+opencv*:with_openexr=False
+opencv*:with_jasper=False
+opencv*:with_openjpeg=False
+opencv*:with_gtk=False
+opencv*:with_qt=False
+opencv*:with_quirc=False
 
 [generators]
 CMakeDeps

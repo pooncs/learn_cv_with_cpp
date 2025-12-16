@@ -30,25 +30,7 @@ Each module contains **10 independent exercises** progressing from simple to com
 * Specific implementation tasks with milestones
 * Code hints including recommended functions and usage examples
 
-
-## Prompt
-1) Refactor each exercise in modules 1 adhering to this specification (see Module Structure). So the file structure should be:
-cv_cpp_curriculum
--> Module_[N]
-    -> ex[N]_[Exercise Name]
-        -> data (all necessary test data (e.g. png, ply, csv, json...)
-        -> answer
-            -> include
-            -> src
-            -> CMakeLists.txt
-        -> todo
-            -> include
-            -> src
-            -> tests
-            -> CMakeLists.txt
-        -> readme.md ( see. Exercise Components )
-2) for each of the readme in the exercises, expand the content, add more explainations, make it tutorial like, write it in such as way that it is self contained without needing external online references. Make sure that it is not too trivial.
-3) Check every exercises in each modules against the specs shown in this document (Module[N]) . Make sure it aligns. Make sure the answer code can be build and run without error. Make sure the tests are present and correct. Make sure the todo stubs are present and easy to follow.
+## Prerequisites
 4) Use conan as the package manager. Use this build command to install the dependencies for MSVC, otherwise clang can also be used (installed in C:\Program Files\LLVM):
 conan install . -s compiler.cppstd=17 --output-folder=build --build=missing --settings=build_type=Release
 cmake --preset conan-default

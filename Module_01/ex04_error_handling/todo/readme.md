@@ -9,13 +9,23 @@ Replace error codes and "magic values" (like returning `-1` for failure) with **
 3.  Access values safely using `.has_value()` and `.value()`.
 4.  Use `.value_or()` for default fallbacks.
 
+## Analogy: The Schrödinger's Box vs. The "Dead Rat" Code
+*   **Old C++ (Magic Numbers):** You ask a function for a "Positive Number".
+    *   It gives you a box.
+    *   If something goes wrong, it puts a `-1` in the box.
+    *   *Problem:* What if `-1` is a valid answer for a different calculation? You have to constantly check documentation to know which number means "Error".
+*   **Modern C++ (`std::optional`):** You get a special **transparent box**.
+    *   It either contains the **Value** (Success).
+    *   Or it is completely **Empty** (Failure).
+    *   You don't have to guess if the value inside is "magic" or real. You just check: "Is the box empty?"
+
 ## Practical Motivation
 In CV, many operations can fail silently:
 *   Finding a chessboard in an image.
 *   Calculating the intersection of parallel lines.
 *   Reading a file that doesn't exist.
 
-Returning a `bool` (success/fail) forces you to pass the result by reference (`bool solve(Input, Output&)`) which is ugly. Returning `-1` is ambiguous (what if the result *is* -1?).
+Returning a `bool` (success/fail) forces you to pass the result by reference (`bool solve(Input, Output&)`) which is ugly. Returning `-1` is ambiguous.
 `std::optional` explicitly states: "I might return a value, or I might return nothing."
 
 ## Theory
@@ -42,7 +52,7 @@ Use `.value_or(0.0)` to print a default value if the calculation failed, without
 
 ## Common Pitfalls
 *   **Unchecked Access:** Calling `.value()` or `*opt` on an empty optional throws `std::bad_optional_access` (or undefined behavior for `*`). Always check first.
-*   **Performance:** Passing `std::optional<LargeObject>` by value copies the object. Use `std::optional<std::reference_wrapper<T>>` or pointers if copying is expensive (though optional references are not standard in C++17, pointers are preferred there). For primitives (`double`, `int`), optional is perfect.
+*   **Performance:** Passing `std::optional<LargeObject>` by value copies the object. Use `std::optional<std::reference_wrapper<T>>` or pointers if copying is expensive. For primitives (`double`, `int`), optional is perfect.
 
 ## Verification
 Compile and run.

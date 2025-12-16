@@ -1,50 +1,62 @@
-# Exercise 10: RAII Wrapper (The Rule of Five)
+# Exercise 10: RAII Wrapper (Rule of Five)
 
 ## Goal
-Combine everything learned in Module 01 to build a production-quality `ImageBuffer` class that manages memory automatically using **RAII** and implements the **Rule of Five**.
+Create a resource wrapper (RAII) for a C-style file handle. You will ensure the file is closed automatically when the wrapper goes out of scope, handling copying and moving correctly.
 
 ## Learning Objectives
-1.  **RAII (Resource Acquisition Is Initialization):** Constructor allocates, Destructor frees.
-2.  **Rule of Five:** If you implement one, you likely need all five:
-    *   Destructor
-    *   Copy Constructor
-    *   Copy Assignment
-    *   Move Constructor
-    *   Move Assignment
-3.  Self-assignment checks.
+1.  **RAII (Resource Acquisition Is Initialization):** Constructor acquires, Destructor releases.
+2.  **Rule of Five:** If you define one of (Destructor, Copy Ctor, Copy Assign, Move Ctor, Move Assign), you likely need all five.
+3.  wrapping C APIs (`FILE*`, `cudaMalloc`, `open`) safely.
+
+## Analogy: The Magic Backpack (Library Book)
+*   **Old C++ (Manual Management):**
+    *   You walk to the library, get a book (`fopen`).
+    *   You read it.
+    *   You MUST walk back to return it (`fclose`).
+    *   *Risk:* If you get hit by lightning (Exception) while reading, the book is never returned.
+*   **Modern C++ (RAII):**
+    *   You have a **Magic Backpack**.
+    *   When you put the book in the backpack (Constructor), it's yours.
+    *   When the backpack vanishes (Destructor/Scope End), the book **automatically teleports** back to the library.
+    *   *Move:* You can hand the backpack to a friend. Now they are responsible.
+    *   *Copy:* You generally CANNOT photocopy the book (Delete Copy Constructor), or if you do, you need a special process.
 
 ## Practical Motivation
-This is the core of how `cv::Mat` or `std::vector` works internally. Writing this yourself gives you deep insight into memory management bugs (double frees, leaks) that plague C++ CV applications.
+We often use C libraries (OpenCV C-API, CUDA, OS calls) that give us "Handles" or pointers that we must manually release.
+*   `FILE* f = fopen(...)` -> `fclose(f)`
+*   `void* ptr; cudaMalloc(&ptr)` -> `cudaFree(ptr)`
+*   `int socket = open(...)` -> `close(socket)`
 
-## Theory
-*   **Deep Copy:** Allocate new memory, copy values (`memcpy`). Used when we want two independent images.
-*   **Move:** Steal the pointer. Used when passing images through a pipeline.
+Wrapping these in a class ensures we never leak resources, even if an exception occurs.
 
 ## Step-by-Step Instructions
 
-### Task 1: Scaffolding
-Open `src/ImageBuffer.cpp` and `include/ImageBuffer.hpp`. The Constructor and Destructor are already there (partially).
+### Task 1: The Wrapper Class
+Open `src/main.cpp`. Define `class FileHandle`.
+*   Member: `FILE* file = nullptr;`
+*   Constructor: Takes a filename, calls `fopen`. Check if null.
+*   Destructor: Calls `fclose` if `file` is not null.
 
-### Task 2: Copy Constructor
-`ImageBuffer(const ImageBuffer& other)`
-1.  Allocate new `data` of size `width * height`.
-2.  `std::memcpy` from `other.data`.
+### Task 2: Rule of Five - Delete Copy
+It makes no sense to copy a file handle (closing it twice causes a crash).
+*   **Task:** Delete Copy Constructor and Copy Assignment.
+    ```cpp
+    FileHandle(const FileHandle&) = delete;
+    FileHandle& operator=(const FileHandle&) = delete;
+    ```
 
-### Task 3: Copy Assignment Operator
-`ImageBuffer& operator=(const ImageBuffer& other)`
-1.  **Check for self-assignment:** `if (this == &other) return *this;` (CRITICAL!)
-2.  `delete[]` old data (prevent leak).
-3.  Allocate new data and copy.
-4.  Return `*this`.
+### Task 3: Rule of Five - Implement Move
+We *do* want to pass file handles around.
+*   **Task:** Implement Move Constructor and Move Assignment.
+    *   Steal the `FILE*`.
+    *   Set source `FILE*` to `nullptr`.
 
-### Task 4: Move Operations
-Implement Move Constructor and Move Assignment (similar to Exercise 09).
-*   Remember to `delete[]` in Move Assignment before stealing!
-
-## Common Pitfalls
-*   **Forgetting `delete[]` in Assignment:** Leak!
-*   **Forgetting Self-Assignment Check:** `a = a` deletes `a`'s data, then tries to copy from deleted memory. Crash!
-*   **Shallow Copy:** Just copying the pointer `data = other.data`. Both destructors will try to free the same memory. Double Free Crash!
+### Task 4: Usage
+In `main()`:
+1.  Create a `FileHandle`.
+2.  Write to it using `fprintf`.
+3.  Pass it to a function `process_log(FileHandle f)` (requires move).
+4.  Verify file is closed (add print in destructor).
 
 ## Verification
 Compile and run.
@@ -55,4 +67,4 @@ cmake ..
 cmake --build .
 ./main
 ```
-The provided `main.cpp` tests copy and move scenarios. Ensure no crashes occur.
+Output should show "File Opened", "Writing...", "File Closed".

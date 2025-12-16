@@ -8,6 +8,16 @@ Learn to use C++17 **Structured Bindings** to unpack multiple return values from
 2.  Refactor `std::map` iterations.
 3.  Understand `auto` vs `auto&` in bindings.
 
+## Analogy: The Magic Sorting Table
+*   **Old C++ (Manual Unpacking):** You receive a sealed package (Tuple/Struct). You have to:
+    1.  Put the package on the table.
+    2.  Open it.
+    3.  Take out Item 1 and label it "A".
+    4.  Take out Item 2 and label it "B".
+    5.  Take out Item 3 and label it "C".
+    *   *Tedious and hard to read.*
+*   **Modern C++ (Structured Bindings):** You have a table with pre-labeled slots [A, B, C]. You dump the package onto the table, and the items **automatically** land in their respective slots. You can use them immediately.
+
 ## Practical Motivation
 In Computer Vision, functions often return multiple values:
 *   `get_camera_params()` -> `(fx, fy, cx, cy)`
