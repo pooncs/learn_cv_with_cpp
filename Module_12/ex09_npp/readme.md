@@ -12,6 +12,10 @@ Use the NVIDIA Performance Primitives (NPP) library for optimized image processi
 ## Practical Motivation
 NVIDIA provides a vast library of hand-tuned image processing functions (resizing, filtering, color conversion, statistics). For standard operations, NPP is often faster and much easier to maintain than custom kernels. It's the "OpenCV of GPU".
 
+**Analogy:**
+*   **Custom Kernels (CUDA):** Writing your own sorting algorithm in Assembly. Optimized, but hard to write and maintain.
+*   **NPP:** Using `std::sort`. It's already written by experts, heavily optimized, and you just call it. Use NPP whenever possible; write custom kernels only when NPP doesn't have what you need.
+
 ## Theory: Strides and ROI
 -   **Step/Stride:** Row alignment in bytes. NPP functions require the stride.
 -   **NppiSize:** Struct `{width, height}` defining image dimensions.

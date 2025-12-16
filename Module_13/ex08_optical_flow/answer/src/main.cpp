@@ -1,125 +1,70 @@
-#include "optical_flow.h"
 #include <iostream>
 #include <opencv2/opencv.hpp>
 #include <vector>
-#include <cmath>
-
-using namespace cv;
-using namespace std;
-using namespace cv_tracking;
-
-// Helper to draw points
-void drawPoints(Mat& img, const vector<Point2f>& points, const Scalar& color) {
-    for (const auto& pt : points) {
-        circle(img, pt, 3, color, -1);
-    }
-}
 
 int main() {
-    cout << "Module 13 Ex 08: Optical Flow (Lucas-Kanade)" << endl;
-    cout << "============================================" << endl;
+    cv::VideoCapture cap(0);
+    if (!cap.isOpened()) {
+        std::cerr << "Error: Could not open camera" << std::endl;
+        return -1;
+    }
 
-    // 1. Generate Synthetic Data
-    int width = 400;
-    int height = 400;
-    Mat img1 = Mat::zeros(height, width, CV_8UC1);
-    Mat img2 = Mat::zeros(height, width, CV_8UC1);
+    // Parameters for Shi-Tomasi corner detection
+    std::vector<cv::Point2f> p0, p1;
+    cv::Mat old_frame, old_gray;
 
-    // Create a moving pattern (a textured square is better for gradients than a solid one)
-    // Solid square has zero gradient inside, only at edges. 
-    // Let's create a noisy patch or a simple pattern.
-    Rect box1(100, 100, 50, 50);
-    Rect box2(105, 103, 50, 50); // Moved by (5, 3)
-
-    // Fill with random noise to ensure gradients exist everywhere inside the box
-    RNG rng(12345);
-    Mat noise(height, width, CV_8UC1);
-    rng.fill(noise, RNG::UNIFORM, 0, 255);
-
-    // Apply noise only within the boxes
-    Mat boxRegion1 = img1(box1);
-    noise(box1).copyTo(boxRegion1);
+    // Take first frame and find corners in it
+    cap >> old_frame;
+    cv::cvtColor(old_frame, old_gray, cv::COLOR_BGR2GRAY);
     
-    Mat boxRegion2 = img2(box2);
-    noise(box1).copyTo(boxRegion2); // Copy the SAME noise pattern to the new location
+    cv::goodFeaturesToTrack(old_gray, p0, 100, 0.3, 7, cv::Mat(), 7, false, 0.04);
 
-    // Also add some background texture to avoid "aperture problem" everywhere else? 
-    // Actually, we only track points inside the box.
-    
-    // Select points to track (features)
-    // Let's pick some points inside the first box
-    vector<Point2f> prevPts;
-    prevPts.push_back(Point2f(125, 125)); // Center
-    prevPts.push_back(Point2f(110, 110)); // Top-left area
-    prevPts.push_back(Point2f(140, 140)); // Bottom-right area
-    prevPts.push_back(Point2f(125, 110)); // Top-mid
-    
-    // 2. Run Custom Optical Flow
-    cout << "\nRunning Custom Optical Flow..." << endl;
-    OpticalFlowTracker tracker;
-    vector<Point2f> nextPtsCustom;
-    vector<uchar> statusCustom;
-    
-    tracker.computeFlowCustom(img1, img2, prevPts, nextPtsCustom, statusCustom);
+    // Create a mask image for drawing purposes
+    cv::Mat mask = cv::Mat::zeros(old_frame.size(), old_frame.type());
 
-    // 3. Run OpenCV Optical Flow
-    cout << "\nRunning OpenCV Optical Flow..." << endl;
-    vector<Point2f> nextPtsCV;
-    vector<uchar> statusCV;
-    tracker.computeFlowOpenCV(img1, img2, prevPts, nextPtsCV, statusCV);
-
-    // 4. Compare Results
-    cout << "\nResults Comparison (Expected Shift: dx=5, dy=3):" << endl;
-    cout << "------------------------------------------------" << endl;
-    
-    float totalErrorCustom = 0;
-    float totalErrorCV = 0;
-    int validPoints = 0;
-
-    for (size_t i = 0; i < prevPts.size(); ++i) {
-        cout << "Point " << i << ": (" << prevPts[i].x << ", " << prevPts[i].y << ")" << endl;
+    while (true) {
+        cv::Mat frame, frame_gray;
+        cap >> frame;
+        if (frame.empty()) break;
         
-        if (statusCustom[i]) {
-            Point2f diff = nextPtsCustom[i] - prevPts[i];
-            cout << "  Custom: (" << nextPtsCustom[i].x << ", " << nextPtsCustom[i].y 
-                 << ") Shift: (" << diff.x << ", " << diff.y << ")" << endl;
-            totalErrorCustom += sqrt(pow(diff.x - 5.0f, 2) + pow(diff.y - 3.0f, 2));
-        } else {
-            cout << "  Custom: Lost" << endl;
-        }
+        cv::cvtColor(frame, frame_gray, cv::COLOR_BGR2GRAY);
 
-        if (statusCV[i]) {
-            Point2f diff = nextPtsCV[i] - prevPts[i];
-            cout << "  OpenCV: (" << nextPtsCV[i].x << ", " << nextPtsCV[i].y 
-                 << ") Shift: (" << diff.x << ", " << diff.y << ")" << endl;
-            totalErrorCV += sqrt(pow(diff.x - 5.0f, 2) + pow(diff.y - 3.0f, 2));
-        } else {
-            cout << "  OpenCV: Lost" << endl;
-        }
+        // Calculate Optical Flow
+        std::vector<uchar> status;
+        std::vector<float> err;
+        cv::TermCriteria criteria = cv::TermCriteria((cv::TermCriteria::COUNT) + (cv::TermCriteria::EPS), 10, 0.03);
         
-        if (statusCustom[i] && statusCV[i]) validPoints++;
-    }
+        cv::calcOpticalFlowPyrLK(old_gray, frame_gray, p0, p1, status, err, cv::Size(15, 15), 2, criteria);
 
-    if (validPoints > 0) {
-        cout << "\nAverage Error Custom: " << totalErrorCustom / validPoints << " px" << endl;
-        cout << "Average Error OpenCV: " << totalErrorCV / validPoints << " px" << endl;
-    }
+        std::vector<cv::Point2f> good_new;
+        for (uint i = 0; i < p0.size(); i++) {
+            // Select good points
+            if (status[i] == 1) {
+                good_new.push_back(p1[i]);
+                // Draw the tracks
+                cv::line(mask, p1[i], p0[i], cv::Scalar(0, 255, 0), 2);
+                cv::circle(frame, p1[i], 5, cv::Scalar(0, 0, 255), -1);
+            }
+        }
 
-    // Save visualization
-    Mat vis;
-    cvtColor(img1, vis, COLOR_GRAY2BGR);
-    for (size_t i = 0; i < prevPts.size(); ++i) {
-        circle(vis, prevPts[i], 3, Scalar(0, 0, 255), -1); // Red: Original
-        if (statusCustom[i]) {
-            line(vis, prevPts[i], nextPtsCustom[i], Scalar(0, 255, 0), 2); // Green: Custom flow
-            circle(vis, nextPtsCustom[i], 3, Scalar(0, 255, 0), -1);
-        }
-        if (statusCV[i]) {
-             circle(vis, nextPtsCV[i], 2, Scalar(255, 0, 0), -1); // Blue: OpenCV
+        cv::Mat img;
+        cv::add(frame, mask, img);
+
+        cv::imshow("Lucas-Kanade Optical Flow", img);
+
+        int keyboard = cv::waitKey(30);
+        if (keyboard == 'q' || keyboard == 27) break;
+
+        // Now update the previous frame and previous points
+        old_gray = frame_gray.clone();
+        p0 = good_new;
+        
+        // Re-detect if points are lost
+        if (p0.size() < 10) {
+             cv::goodFeaturesToTrack(old_gray, p0, 100, 0.3, 7, cv::Mat(), 7, false, 0.04);
+             mask = cv::Mat::zeros(old_frame.size(), old_frame.type());
         }
     }
-    imwrite("optical_flow_result.png", vis);
-    cout << "\nVisualization saved to 'optical_flow_result.png'" << endl;
 
     return 0;
 }

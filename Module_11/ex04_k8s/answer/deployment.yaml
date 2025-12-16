@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cpp-app-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: cpp-app
+  template:
+    metadata:
+      labels:
+        app: cpp-app
+    spec:
+      containers:
+      - name: cpp-app
+        image: docker_demo:latest # Assumes image from Ex02
+        imagePullPolicy: Never # Use local image
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"

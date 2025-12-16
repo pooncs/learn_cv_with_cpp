@@ -1,80 +1,60 @@
 #include <iostream>
 #include <vector>
-#include <numeric>
+#include <chrono>
 #include <cuda_runtime.h>
 
-#define CUDA_CHECK(call) \
+#define CHECK_CUDA(call) \
     do { \
-        cudaError_t err = call; \
-        if (err != cudaSuccess) { \
-            std::cerr << "CUDA Error: " << cudaGetErrorString(err) << " at " << __FILE__ << ":" << __LINE__ << std::endl; \
-            exit(err); \
+        cudaError_t status = call; \
+        if (status != cudaSuccess) { \
+            std::cerr << "CUDA Error: " << cudaGetErrorString(status) << std::endl; \
+            return -1; \
         } \
     } while (0)
 
 int main() {
-    const int N = 1024;
-    const size_t bytes = N * sizeof(int);
+    const size_t size = 100 * 1024 * 1024; // 100 MB
+    const size_t bytes = size * sizeof(float);
+    
+    std::cout << "Benchmarking transfer of " << bytes / (1024*1024) << " MB..." << std::endl;
 
-    // 1. Allocate Host Memory
-    std::vector<int> h_in(N);
-    std::vector<int> h_out(N);
+    float *d_data;
+    CHECK_CUDA(cudaMalloc(&d_data, bytes));
 
-    // Initialize h_in
-    std::iota(h_in.begin(), h_in.end(), 0); // 0, 1, 2, ...
+    // --- Pageable Memory ---
+    float *h_pageable = new float[size];
+    // Initialize to force physical allocation
+    for(size_t i=0; i<size; i+=1024) h_pageable[i] = 1.0f;
 
-    std::cout << "Allocating " << bytes << " bytes on GPU..." << std::endl;
+    auto start = std::chrono::high_resolution_clock::now();
+    CHECK_CUDA(cudaMemcpy(d_data, h_pageable, bytes, cudaMemcpyHostToDevice));
+    auto end = std::chrono::high_resolution_clock::now();
+    
+    double pageable_ms = std::chrono::duration<double, std::milli>(end - start).count();
+    std::cout << "Pageable Transfer: " << pageable_ms << " ms" << std::endl;
 
-    // 2. Allocate Device Memory
-    int* d_data = nullptr;
-    CUDA_CHECK(cudaMalloc((void**)&d_data, bytes));
+    delete[] h_pageable;
 
-    // 3. Copy Host -> Device
-    std::cout << "Copying Host -> Device..." << std::endl;
-    CUDA_CHECK(cudaMemcpy(d_data, h_in.data(), bytes, cudaMemcpyHostToDevice));
+    // --- Pinned Memory ---
+    float *h_pinned;
+    CHECK_CUDA(cudaMallocHost(&h_pinned, bytes));
+    for(size_t i=0; i<size; i+=1024) h_pinned[i] = 1.0f;
 
-    // 4. Copy Device -> Host (Round Trip)
-    std::cout << "Copying Device -> Host..." << std::endl;
-    CUDA_CHECK(cudaMemcpy(h_out.data(), d_data, bytes, cudaMemcpyDeviceToHost));
+    start = std::chrono::high_resolution_clock::now();
+    CHECK_CUDA(cudaMemcpy(d_data, h_pinned, bytes, cudaMemcpyHostToDevice));
+    end = std::chrono::high_resolution_clock::now();
+    
+    double pinned_ms = std::chrono::duration<double, std::milli>(end - start).count();
+    std::cout << "Pinned Transfer:   " << pinned_ms << " ms" << std::endl;
 
-    // 5. Verify
-    bool correct = true;
-    for (int i = 0; i < N; ++i) {
-        if (h_out[i] != h_in[i]) {
-            std::cerr << "Mismatch at index " << i << ": " << h_out[i] << " != " << h_in[i] << std::endl;
-            correct = false;
-            break;
-        }
-    }
+    CHECK_CUDA(cudaFreeHost(h_pinned));
+    CHECK_CUDA(cudaFree(d_data));
 
-    if (correct) {
-        std::cout << "Round Trip Test: PASS" << std::endl;
+    if (pinned_ms < pageable_ms) {
+        std::cout << "Success: Pinned is " << pageable_ms / pinned_ms << "x faster." << std::endl;
     } else {
-        std::cout << "Round Trip Test: FAIL" << std::endl;
+        std::cout << "Note: Pinned was not faster. This can happen on small transfers or specific systems." << std::endl;
     }
-
-    // 6. Test Memset
-    std::cout << "Testing cudaMemset (setting to 0)..." << std::endl;
-    CUDA_CHECK(cudaMemset(d_data, 0, bytes));
-    CUDA_CHECK(cudaMemcpy(h_out.data(), d_data, bytes, cudaMemcpyDeviceToHost));
-
-    correct = true;
-    for (int i = 0; i < N; ++i) {
-        if (h_out[i] != 0) {
-            std::cerr << "Mismatch at index " << i << ": " << h_out[i] << " != 0" << std::endl;
-            correct = false;
-            break;
-        }
-    }
-
-    if (correct) {
-        std::cout << "Memset Test: PASS" << std::endl;
-    } else {
-        std::cout << "Memset Test: FAIL" << std::endl;
-    }
-
-    // 7. Free
-    CUDA_CHECK(cudaFree(d_data));
 
     return 0;
 }
