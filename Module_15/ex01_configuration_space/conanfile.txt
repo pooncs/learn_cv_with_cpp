@@ -1,0 +1,7 @@
+[requires]
+opencv/4.10.0
+fmt/10.2.1
+
+[generators]
+CMakeDeps
+CMakeToolchain

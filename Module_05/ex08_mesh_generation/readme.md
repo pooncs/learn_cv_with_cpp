@@ -1,25 +1,38 @@
-# Exercise 08: Mesh Generation
+# Module 05 - Exercise 08: Mesh Generation
 
 ## Goal
-Create a mesh from points using Poisson Surface Reconstruction (conceptually) or a simpler Grid approach.
+Create a surface mesh (triangles) from a set of 3D points.
 
-## Learning Objectives
-1.  Understand implicit surface reconstruction.
-2.  Implement Marching Cubes (conceptually) or simple Triangulation.
-3.  For this exercise: Implement "Greedy Projection Triangulation" or simply mesh a grid of points.
+## Concept: Meshing
+A point cloud is just a set of unconnected samples. A **mesh** connects these points with triangles to form a continuous surface.
 
-## Theory & Background
+## Analogy: The Fishing Net
+*   **Point Cloud:** Imagine a swarm of fireflies flying in the shape of a dragon. If you get close, you see they are just separate dots.
+*   **Mesh:** Imagine throwing a net over the fireflies.
+*   **Vertices:** The knots in the net correspond to the fireflies (Points).
+*   **Faces (Triangles):** The threads connecting the knots form a solid surface (Skin).
+*   **Result:** Now you have a solid dragon, not just a cloud of dots.
 
-### Greedy Projection
-1.  Project points to a local 2D plane.
-2.  Connect neighbors to form triangles.
-3.  Ensure angles are not too small/large.
+### Structured vs Unstructured
+1.  **Structured (e.g., Depth Map)**: We know the neighbor relationship (pixels $(u,v)$ are neighbors). We can simply triangulate adjacent pixels.
+2.  **Unstructured (e.g., Lidar)**: We don't know who is next to whom. Algorithms like **Poisson Surface Reconstruction** or **Ball Pivoting** are used.
 
-## Implementation Tasks
+## Task
+We will implement a **Structured Mesh Generator** (like a simplified version of what happens when rendering a depth map).
+1.  Generate a grid of points (representing a depth map).
+2.  For each "pixel" $(i, j)$, create two triangles connecting it to $(i+1, j)$, $(i, j+1)$, and $(i+1, j+1)$.
+3.  Save the result as an **OBJ** or **PLY** file (which supports faces).
 
-### Task 1: Simple Triangulation
-Given an organized point cloud (grid structure $W \times H$), generate 2 triangles for every quad.
+## Instructions
+1.  Navigate to `todo/` directory.
+2.  Open `src/main.cpp`.
+3.  Implement the triangulation logic.
+4.  Build and run.
 
-## Common Pitfalls
-- Handling unorganized clouds is much harder (requires proper PSR).
-- Organized cloud: Point at $(u, v)$ connects to $(u+1, v)$, $(u, v+1)$, etc.
+## Build
+```bash
+mkdir build
+cd build
+cmake ..
+cmake --build .
+```

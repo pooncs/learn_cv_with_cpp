@@ -12,6 +12,10 @@ Implement the A* (A-Star) search algorithm to find the shortest path between two
 ## Practical Motivation
 A* is the backbone of path planning in robotics and games. Whether it's a Roomba cleaning a floor or a character navigating a maze, A* ensures the robot gets from A to B efficiently without hitting walls.
 
+**Analogy:** Imagine you are exploring a city to find a landmark. 
+*   **Dijkstra** is like sending out search parties in every direction equally, expanding a circle until one hits the target.
+*   **A*** is like telling the search parties: "Prioritize the streets that head towards the landmark's general direction (using a compass)." It doesn't blindly walk into walls, but it prefers moving in the right direction, saving time.
+
 ## Theory: The A* Algorithm
 A* minimizes the cost function: $f(n) = g(n) + h(n)$
 *   $g(n)$: Cost from start to node $n$ (actual distance traveled).

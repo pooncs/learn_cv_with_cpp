@@ -1,36 +1,27 @@
 #pragma once
-#include <string>
 #include <map>
 #include <functional>
 #include <memory>
+#include <string>
 #include <stdexcept>
+#include <vector>
 
-class IAlgorithm {
+// Forward Declaration
+class IFilter;
+
+class FilterFactory {
 public:
-    virtual ~IAlgorithm() = default;
-    virtual void process() = 0;
-    virtual std::string name() const = 0;
-};
+    using CreatorFunc = std::function<std::unique_ptr<IFilter>()>;
 
-class AlgorithmFactory {
-public:
-    using Creator = std::function<std::unique_ptr<IAlgorithm>()>;
+    // TODO: Implement registerFilter
+    // static void registerFilter(const std::string& name, CreatorFunc creator);
 
-    static AlgorithmFactory& instance() {
-        static AlgorithmFactory factory;
-        return factory;
-    }
+    // TODO: Implement createFilter
+    // static std::unique_ptr<IFilter> createFilter(const std::string& name);
 
-    void register_algo(const std::string& name, Creator creator) {
-        // TODO: Store creator in map
-    }
-
-    std::unique_ptr<IAlgorithm> create(const std::string& name) {
-        // TODO: Look up creator and return new instance
-        // Throw exception if not found
-        return nullptr;
-    }
+    // TODO: Implement getAvailableFilters
+    // static std::vector<std::string> getAvailableFilters();
 
 private:
-    std::map<std::string, Creator> registry_;
+    // TODO: Implement Singleton Registry
 };

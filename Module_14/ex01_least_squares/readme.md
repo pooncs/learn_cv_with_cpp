@@ -12,6 +12,8 @@ Implement the Gauss-Newton algorithm to solve a non-linear least squares problem
 ## Practical Motivation
 SLAM and Bundle Adjustment are essentially giant least squares problems. Before tackling those, you must understand how to optimize a simple model.
 
+**Analogy:** Fitting a curve is like trying to bend a flexible ruler to touch as many points on a graph as possible. Least Squares is the mathematical way of measuring how much the ruler "misses" the points and adjusting it until the total "miss" (squared distance) is minimized.
+
 ## Theory: Gauss-Newton
 We want to find parameters $\theta = [a, b, c]^T$ that minimize the error between our model $f(x; \theta)$ and observations $y_{obs}$.
 Residual $r_i = f(x_i; \theta) - y_{obs, i}$.

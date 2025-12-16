@@ -4,37 +4,56 @@
 Fit a plane to noisy 3D points using Singular Value Decomposition (SVD).
 
 ## Learning Objectives
-1.  Formulate a geometric fitting problem as a least squares minimization.
-2.  Use `Eigen::JacobiSVD` or `Eigen::BDCSVD` to solve homogeneous systems.
-3.  Understand the relationship between the smallest singular value and the solution.
+1.  **Least Squares Formulation:** Turning a geometry problem into "Minimize Error".
+2.  **SVD (Singular Value Decomposition):** The "Swiss Army Knife" of linear algebra.
+3.  **Null Space:** Finding the solution to $Ax=0$ (Homogeneous systems).
+
+## Analogy: The Best-Fit Table
+*   **The Data:** A wobbly table with legs of slightly different lengths (Noisy points).
+*   **The Plane:** The perfect flat sheet of glass you want to rest on top of them.
+*   **Least Squares:** The math that calculates exactly how to tilt the glass so the average gap between the glass and the leg tips is minimized.
+*   **SVD:** The tool that tells you: "This is the direction where the table is flattest."
 
 ## Practical Motivation
-In 3D Vision, we often need to fit geometric primitives (lines, planes, cylinders) to point clouds obtained from LiDAR or Depth cameras. RANSAC often uses a least-squares solver in its inner loop.
+*   **Ground Plane Estimation:** Finding the floor in a robot's camera view.
+*   **Wall Detection:** Fitting planes to LiDAR scans of a room.
+*   **Calibration:** Finding the chessboard plane.
 
-## Theory & Background
+## Theory: SVD for Plane Fitting
+A plane is $ax + by + cz + d = 0$.
+The normal vector $n = [a, b, c]$ is the direction "least like" the spread of the data.
+1.  **Center the data:** Subtract the mean. Now the plane passes through $(0,0,0)$, so $d=0$ relative to the center.
+2.  **Form Matrix:** Stack coordinates into matrix $A$.
+3.  **SVD:** The normal $n$ is the **Singular Vector** corresponding to the **Smallest Singular Value**. (It's the direction with the *least* variance).
 
-### Plane Equation
-A plane is defined by $ax + by + cz + d = 0$.
-We want to find $n = [a, b, c, d]^T$ such that $\sum (n^T p_i)^2$ is minimized, subject to $||n|| = 1$ (or $a^2+b^2+c^2=1$).
+## Step-by-Step Instructions
 
-### SVD Solution
-1.  Compute the centroid $\bar{p}$.
-2.  Subtract centroid from all points: $P' = P - \bar{p}$.
-3.  Form the matrix $A = P'^T$.
-4.  Compute SVD of $A$.
-5.  The normal vector $[a, b, c]^T$ corresponds to the singular vector associated with the **smallest singular value** (last column of V).
-6.  Solve for $d = -n \cdot \bar{p}$.
+### Task 1: Generate Noisy Data
+Open `src/main.cpp`.
+*   We provide a function `generate_noisy_plane()` that creates points on $Z=0$ with some noise.
 
-Alternatively, one can solve $Ax=0$ directly using SVD on the homogeneous points, but centering first is numerically more stable.
+### Task 2: Compute Centroid
+*   Calculate the mean point $\bar{p}$.
+*   Subtract $\bar{p}$ from all points to get centered data $P_{centered}$.
 
-## Implementation Tasks
+### Task 3: Form Matrix & Compute SVD
+*   Put centered points into a $3 \times N$ matrix (or $N \times 3$).
+*   Compute SVD: `Eigen::JacobiSVD<Eigen::MatrixXd> svd(A, Eigen::ComputeThinU | Eigen::ComputeThinV);`.
+*   *Note:* If $A$ is $N \times 3$, the normal is the **last column of V**.
+*   *Note:* If $A$ is $3 \times N$, the normal is the **last column of U** (or singular vector of $A A^T$). Let's assume $N \times 3$ layout for simplicity.
 
-### Task 1: Fit Plane
-Implement a function that takes $N$ 3D points and returns the plane coefficients $(a, b, c, d)$.
+### Task 4: Recover Plane Equation
+*   Normal $n = [a, b, c]$.
+*   Recover $d$ using the original equation and the centroid: $a \bar{x} + b \bar{y} + c \bar{z} + d = 0 \implies d = -n \cdot \bar{p}$.
+*   Print the equation. It should be close to $0x + 0y + 1z + 0 = 0$ (if generated on Z=0).
 
-### Task 2: Verify
-Generate points on a known plane, add noise, and verify the fitted coefficients.
-
-## Common Pitfalls
-- **Normalization**: The normal vector returned by SVD is unit length.
-- **Sign Ambiguity**: The normal can point in either direction ($n$ or $-n$).
+## Verification
+Compile and run.
+```bash
+cd todo
+mkdir build && cd build
+cmake ..
+cmake --build .
+./main
+```
+Output should show the fitted plane coefficients.

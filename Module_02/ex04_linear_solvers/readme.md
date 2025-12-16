@@ -4,43 +4,52 @@
 Solve systems of linear equations $Ax=b$ using various decompositions (LLT, LDLT, LU).
 
 ## Learning Objectives
-1.  Understand when to use different solvers based on matrix properties (SPD, Positive Definite, General).
-2.  Implement solvers for $Ax=b$ in Eigen.
-3.  Compare accuracy and performance (conceptually).
+1.  **Decomposition Choice:** Know when to use LLT (Fastest, strict requirements) vs LU/QR (General purpose).
+2.  **Implementation:** Syntax `A.llt().solve(b)`.
+3.  **Validation:** Checking if the solution is valid ($Ax \approx b$).
+
+## Analogy: The Locksmiths
+*   **The Problem ($Ax=b$):** You need to find the key code ($x$) that fits the Lock ($A$) to open the Door ($b$).
+*   **LLT (Cholesky) - The Speed Runner:**
+    *   Extremely fast.
+    *   **Restriction:** Only works on high-end, perfectly symmetrical locks (SPD Matrices). If the lock is slightly bent (Not SPD), he fails completely.
+*   **HouseholderQR - The Heavy Duty Pro:**
+    *   Slower, carries heavy tools.
+    *   **Advantage:** Can open almost any rusty, weird-shaped lock (General Matrices). Very stable.
 
 ## Practical Motivation
-In Computer Vision, we solve linear systems constantly:
-- **Camera Calibration**: Solving for intrinsic parameters.
-- **Bundle Adjustment**: Solving normal equations $J^T J \Delta x = -J^T r$.
-- **Optical Flow**: Solving $A v = b$ for velocity vector $v$.
+*   **Camera Calibration:** Solving for intrinsic parameters involves solving linear systems.
+*   **Bundle Adjustment:** Solving normal equations $J^T J \Delta x = -J^T r$ (Often SPD, so LLT is king).
+*   **Optical Flow:** Solving $A v = b$ for velocity.
 
-## Theory & Background
+## Step-by-Step Instructions
 
-### Choice of Decompositions
-1.  **LLT (Cholesky)**:
-    - Requirements: Matrix $A$ must be **Symmetric Positive Definite (SPD)**.
-    - Speed: Very fast.
-    - Accuracy: Good.
-2.  **LDLT (Robust Cholesky)**:
-    - Requirements: Symmetric, Positive or Negative Semidefinite.
-    - Robustness: More robust than LLT if matrix is near singular.
-3.  **HouseholderQR**:
-    - Requirements: Any matrix.
-    - Speed: Slower but very stable.
-4.  **Lu (FullPivLU, PartialPivLU)**:
-    - Requirements: Square, invertible.
+### Task 1: Setup System
+Open `src/main.cpp`.
+*   Create a $3 \times 3$ matrix $A$. Make it **Symmetric Positive Definite (SPD)**.
+    *   *Tip:* Generate a random matrix $R$, then $A = R^T R$. This guarantees SPD.
+*   Create a vector $b$.
 
-## Implementation Tasks
+### Task 2: LLT Solver (Cholesky)
+*   Solve $Ax = b$ using `A.llt().solve(b)`.
+*   Store result in $x_{llt}$.
+*   Print $x_{llt}$.
 
-### Task 1: LLT Solver
-Given an SPD matrix $A$ and vector $b$, solve for $x$ using `A.llt().solve(b)`.
+### Task 3: LDLT Solver (Robust Cholesky)
+*   Solve using `A.ldlt().solve(b)`.
+*   Store in $x_{ldlt}$.
+*   *Note:* LDLT is slightly slower than LLT but works for semi-definite matrices (where eigenvalues might be 0).
 
-### Task 2: LDLT Solver
-Solve for a slightly less well-behaved symmetric matrix using `A.ldlt().solve(b)`.
+### Task 4: Verify
+*   Compute error $e = A x - b$.
+*   Print the norm of the error `e.norm()`. It should be close to 0.
 
-### Task 3: Check Error
-Compute the relative error $||Ax - b|| / ||b||$.
-
-## Common Pitfalls
-- Trying to use LLT on a non-SPD matrix (result will be numerical garbage or NaN).
-- Forgetting to check if the decomposition succeeded (`info() == Eigen::Success`).
+## Verification
+Compile and run.
+```bash
+cd todo
+mkdir build && cd build
+cmake ..
+cmake --build .
+./main
+```

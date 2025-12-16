@@ -11,6 +11,8 @@ Export a simple PyTorch neural network model to the Open Neural Network Exchange
 ## Practical Motivation
 PyTorch is great for training, but for production deployment in C++, we often use inference engines like ONNX Runtime or TensorRT. ONNX serves as the bridge format.
 
+**Analogy:** Think of PyTorch as the "Microsoft Word" document where you write and edit your book (train your model). It has lots of editing tools. ONNX is like the "PDF" file you export to. It's meant for distribution and reading (inference) on any device, but you don't edit it anymore.
+
 ## Theory: ONNX
 ONNX (Open Neural Network Exchange) is an open format built to represent machine learning models. It defines a common set of operators - the building blocks of machine learning and deep learning models - and a common file format to enable AI developers to use models with a variety of frameworks, tools, runtimes, and compilers.
 

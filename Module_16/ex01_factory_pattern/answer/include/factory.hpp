@@ -3,30 +3,41 @@
 #include <map>
 #include <functional>
 #include <memory>
-#include <stdexcept>
 #include <string>
+#include <stdexcept>
 
-class AlgorithmFactory {
+class FilterFactory {
 public:
-    using Creator = std::function<std::unique_ptr<IAlgorithm>()>;
+    using CreatorFunc = std::function<std::unique_ptr<IFilter>()>;
 
-    static AlgorithmFactory& instance() {
-        static AlgorithmFactory factory;
-        return factory;
+    // Register a new filter type
+    static void registerFilter(const std::string& name, CreatorFunc creator) {
+        getRegistry()[name] = creator;
     }
 
-    void register_algo(const std::string& name, Creator creator) {
-        registry_[name] = creator;
-    }
-
-    std::unique_ptr<IAlgorithm> create(const std::string& name) {
-        auto it = registry_.find(name);
-        if (it != registry_.end()) {
+    // Create a filter by name
+    static std::unique_ptr<IFilter> createFilter(const std::string& name) {
+        auto& reg = getRegistry();
+        auto it = reg.find(name);
+        if (it != reg.end()) {
             return it->second();
         }
-        throw std::runtime_error("Algorithm not registered: " + name);
+        throw std::runtime_error("Unknown filter type: " + name);
+    }
+
+    // List available filters
+    static std::vector<std::string> getAvailableFilters() {
+        std::vector<std::string> keys;
+        for (const auto& kv : getRegistry()) {
+            keys.push_back(kv.first);
+        }
+        return keys;
     }
 
 private:
-    std::map<std::string, Creator> registry_;
+    // Static registry (Meyers Singleton to ensure initialization)
+    static std::map<std::string, CreatorFunc>& getRegistry() {
+        static std::map<std::string, CreatorFunc> registry;
+        return registry;
+    }
 };

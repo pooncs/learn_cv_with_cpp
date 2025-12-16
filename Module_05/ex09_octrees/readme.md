@@ -8,6 +8,15 @@ Implement a basic Octree for efficient spatial queries (e.g., radius search).
 2.  Insert points into the tree.
 3.  Perform a radius search.
 
+## Analogy: The 3D Filing Cabinet
+*   **The Problem:** You have a million fireflies (points) in a room. You want to find all fireflies near the lamp.
+*   **Linear Search (The Bad Way):** You go to every single firefly in the room and measure the distance to the lamp.
+*   **Octree (The Good Way):** You divide the room into 8 big cubes.
+    *   The lamp is in the top-right cube.
+    *   **Pruning:** You immediately ignore the other 7 cubes. You don't even look inside them.
+    *   **Recursion:** You divide that top-right cube into 8 smaller cubes, and repeat.
+*   **Result:** You find the neighbors by checking only a tiny fraction of the total points.
+
 ## Theory & Background
 
 ### Octree

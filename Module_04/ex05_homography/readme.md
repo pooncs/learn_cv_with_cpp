@@ -8,6 +8,12 @@ Compute and apply a Homography matrix to warp an image.
 2.  Use `cv::findHomography` with 4 point correspondences.
 3.  Use `cv::warpPerspective` to apply the transformation.
 
+## Analogy: The Keystone Correction
+Have you ever used a projector that was placed too low? The image on the wall looks like a trapezoid (the top is wide, the bottom is narrow).
+*   **The Problem:** The "screen plane" and the "projector plane" are not parallel.
+*   **Homography:** This is the math that fixes it. It grabs the four corners of the trapezoid and stretches them to the four corners of a perfect rectangle.
+*   **Plane-to-Plane:** Homography maps any flat surface to any other flat surface, no matter how tilted they are.
+
 ## Theory & Background
 
 ### Homography

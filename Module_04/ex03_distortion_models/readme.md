@@ -8,6 +8,14 @@ Implement Radial and Tangential distortion functions.
 2.  Implement forward distortion (Undistorted -> Distorted).
 3.  Visualize the "pincushion" or "barrel" effect.
 
+## Analogy: The Funhouse Mirror
+A perfect camera is like a flat, perfect window. But real lenses are curved glass.
+*   **Ideal World:** Straight lines in the world appear as straight lines on the image.
+*   **Radial Distortion (The Curve):** The glass is curved like a magnifying glass or a fisheye lens.
+    *   *Barrel:* The center looks big, the edges look squashed. Straight lines curve outwards.
+    *   *Pincushion:* The center looks small, the corners are pulled out. Straight lines curve inwards.
+*   **Tangential Distortion (The Tilt):** The lens wasn't glued perfectly flat. It's slightly tilted. Things look stretched on one side.
+
 ## Theory & Background
 
 ### Normalized Coordinates

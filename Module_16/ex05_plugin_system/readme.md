@@ -11,6 +11,8 @@ Load C++ code (shared libraries) at runtime to extend functionality.
 ## Practical Motivation
 You want to ship a "Core" application and let 3rd parties write "Filters" for it without giving them your source code or recompiling the core.
 
+**Analogy:** Think of a game console (Host) and game cartridges (Plugins). The console has a slot (Interface). You can plug in any cartridge, and the console plays it. The console manufacturers didn't know about every game that would ever be made when they built the console, but because they agreed on the cartridge shape and pin layout (ABI), it works.
+
 ## Step-by-Step Instructions
 1.  Define a header-only interface `IPlugin`.
 2.  Write a separate CMake project for a plugin (produces `.dll` or `.so`).

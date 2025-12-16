@@ -8,6 +8,17 @@ Implement image undistortion using a lookup table (remap).
 2.  Create `map_x` and `map_y` for `cv::remap`.
 3.  Correct radial and tangential distortion in images.
 
+## Analogy: The Ironing Board
+*   **Distorted Image:** A crumpled, wrinkled shirt (or a photo taken with a fisheye lens).
+*   **Undistortion:** Ironing it flat to see the true pattern.
+*   **Forward Mapping (The Bad Way):** You try to push every pixel from the crumpled shirt onto a flat board.
+    *   *Problem:* Some pixels overlap, and some spots get no pixels at all (holes).
+*   **Inverse Mapping (The Good Way):** You start with a pristine, flat white board (The Destination).
+    *   For every dot on the flat board, you ask: "Where would this dot be on the crumpled shirt?"
+    *   You calculate the coordinate on the crumpled shirt (Distort it).
+    *   You go to that coordinate, pick up the color, and paint it on your flat board.
+    *   *Result:* A perfectly filled, smooth image with no holes.
+
 ## Theory & Background
 
 ### Inverse Mapping

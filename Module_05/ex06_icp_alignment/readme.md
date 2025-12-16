@@ -8,6 +8,14 @@ Use Open3D (or a manual implementation) to align two point clouds using Iterativ
 2.  Align a source cloud to a target cloud.
 3.  Evaluate alignment quality (RMSE).
 
+## Analogy: The Magnetic Slide
+*   **The Problem:** You have two identical plastic shapes, but one is rotated and shifted. You want to lock them together.
+*   **ICP (Iterative Closest Point):**
+    1.  **Magnetize:** Imagine every point on Shape A is a magnet attracted to the *closest* point on Shape B.
+    2.  **Slide:** The magnets pull Shape A slightly closer to Shape B.
+    3.  **Re-evaluate:** Now that A has moved, the "closest points" might have changed. So we check the magnets again.
+    4.  **Repeat:** We keep sliding and re-checking until the shapes "snap" together perfectly.
+
 ## Theory & Background
 
 ### ICP

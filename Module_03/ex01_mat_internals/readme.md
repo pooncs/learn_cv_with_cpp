@@ -4,39 +4,56 @@
 Deep dive into `cv::Mat` memory layout, reference counting, and basic properties.
 
 ## Learning Objectives
-1.  Understand how `cv::Mat` stores data (Header vs Data Pointer).
-2.  Inspect `rows`, `cols`, `channels`, `step`, and `elemSize`.
-3.  Understand Reference Counting (shallow copy vs deep copy).
+1.  **Memory Model:** Header (metadata) vs Data (pixels).
+2.  **Shallow vs Deep Copy:** When does copying `Mat` copy the pixels? (Spoiler: Almost never by default).
+3.  **Strides:** Understanding `step` and padding.
+
+## Analogy: The Library Card
+*   **`cv::Mat` (Header):** A **Library Card**.
+    *   It contains info: "Title: Mona Lisa", "Size: 100x100", "Location: Shelf 5".
+    *   It is very small and light.
+*   **The Data (Pixels):** The actual **Book**.
+    *   It is heavy (Megabytes).
+*   **Shallow Copy (`Mat B = A`):** Photocopying the Library Card.
+    *   You have two cards. They both point to the *same* Book.
+    *   If you draw a mustache on the Mona Lisa using Card B, the person holding Card A sees it too.
+*   **Deep Copy (`Mat C = A.clone()`):** Buying a brand new copy of the Book.
+    *   Now you have two separate books. Modifying one doesn't affect the other.
 
 ## Practical Motivation
-`cv::Mat` is the fundamental data structure in OpenCV. Misunderstanding how it manages memory leads to:
-- **Memory Leaks**: If not handled correctly (though RAII helps).
-- **Unintended Modifications**: Modifying a shallow copy changes the original image.
-- **Segfaults**: Accessing data with wrong step/stride.
+*   **Performance:** Passing `Mat` by value is cheap (it just copies the header).
+*   **Bug Source:** "I modified the image in a function, why did my original image change?" (Because you passed by value, which is a shallow copy!).
 
-## Theory & Background
-
-### Memory Layout
-- **Header**: Contains metadata (size, type, pointer to data). Small footprint.
-- **Data**: The actual pixel array. Large footprint.
-- **Ref Count**: When you copy a Mat (`B = A`), the data is NOT copied. `B` points to the same data, and ref count increases. Use `A.clone()` for deep copy.
-
-### Stride (Step)
-- `step[0]`: Bytes per row (width * channels * bytes_per_channel + padding).
-- `step[1]`: Bytes per element (channels * bytes_per_channel).
-
-## Implementation Tasks
+## Step-by-Step Instructions
 
 ### Task 1: Create Mat Manually
-Allocate a 3x3 RGB image (3 channels) manually.
+Open `src/main.cpp`.
+*   Create a `cv::Mat` named `image` of size $480 \times 640$, type `CV_8UC3` (8-bit Unsigned, 3 Channels), initialized to green.
+    *   *Hint:* `cv::Scalar(blue, green, red)`.
 
 ### Task 2: Inspect Properties
-Print `rows`, `cols`, `channels`, `elemSize` (bytes per pixel), and `step` (bytes per row).
+*   Print:
+    *   `rows`, `cols`
+    *   `channels()`
+    *   `elemSize()` (Bytes per pixel: 3 for RGB)
+    *   `step` (Bytes per row: usually cols * elemSize, but can have padding).
 
-### Task 3: Reference Counting
-Create `A`. Assign `B = A`. Modify `B`. Check if `A` changed.
-Create `C = A.clone()`. Modify `C`. Check if `A` changed.
+### Task 3: Reference Counting (Shallow Copy)
+*   Create `cv::Mat shallow_copy = image;`
+*   Draw a white rectangle on `shallow_copy`.
+*   Check if `image` has the rectangle. (It should).
 
-## Common Pitfalls
-- Assuming `step` equals `width * channels`. Sometimes OpenCV adds padding for alignment.
-- Confusing `type()` (CV_8UC3) with `depth()` (CV_8U).
+### Task 4: Deep Copy
+*   Create `cv::Mat deep_copy = image.clone();`
+*   Draw a black circle on `deep_copy`.
+*   Check if `image` has the circle. (It should NOT).
+
+## Verification
+Compile and run.
+```bash
+cd todo
+mkdir build && cd build
+cmake ..
+cmake --build .
+./main
+```

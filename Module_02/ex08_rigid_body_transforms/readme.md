@@ -4,37 +4,62 @@
 Construct $4 \times 4$ transformation matrices (SE3) to chain robot joint poses.
 
 ## Learning Objectives
-1.  Understand Homogeneous Coordinates.
-2.  Construct SE(3) matrices from Rotation ($3 \times 3$) and Translation ($3 \times 1$).
-3.  Apply transformations to 3D points.
-4.  Chain transformations ($T_{world\_hand} = T_{world\_base} \times T_{base\_shoulder} \times \dots$).
+1.  **Homogeneous Coordinates:** Why we need that extra "1" at the end of vectors.
+2.  **SE(3) Construction:** Building the big matrix from Rotation and Translation.
+3.  **Forward Kinematics:** Chaining matrices to find where the robot hand is.
+
+## Analogy: The Robot Arm (Lego Stacking)
+*   **The Problem:** Where is the robot's hand?
+*   **SE(3) Matrix:** Represents one "Lego Block" or Joint.
+    *   "The Elbow is attached 10cm away from the Shoulder and rotated 30 degrees."
+*   **Chaining ($T_{total} = T_1 \times T_2 \times T_3$):** Stacking the blocks.
+    *   To find the Hand's position in the World, you multiply:
+    *   $T_{World\_Hand} = T_{World\_Shoulder} \times T_{Shoulder\_Elbow} \times T_{Elbow\_Hand}$.
 
 ## Practical Motivation
-In Robotics and AR/VR, we represent the pose of objects using SE(3) matrices. Chaining them allows us to calculate the position of an end-effector relative to the world frame (Forward Kinematics).
+*   **Robotics:** Calculating end-effector position.
+*   **AR/VR:** Placing a virtual cup on a table (Camera-to-Object transform).
+*   **SLAM:** Tracking camera movement ($Pose_{t} = Pose_{t-1} \times \Delta Pose$).
 
-## Theory & Background
+## Step-by-Step Instructions
 
-### SE(3) Matrix
-A rigid body transform is a member of the Special Euclidean group SE(3).
-$$ T = \begin{bmatrix} R & t \\ 0 & 1 \end{bmatrix} $$
-where $R \in SO(3)$ is rotation, and $t \in \mathbb{R}^3$ is translation.
+### Task 1: Create SE3 Helper
+Open `src/main.cpp`.
+*   Implement `createSE3(Rotation, Translation)`.
+    *   Input: `Eigen::Matrix3d R`, `Eigen::Vector3d t`.
+    *   Output: `Eigen::Matrix4d T`.
+    *   Structure:
+        ```
+        [ R  t ]
+        [ 0  1 ]
+        ```
+    *   *Hint:* Use `.block()` or comma initializer.
 
-### Transforming Points
-To transform a point $p = [x, y, z]^T$:
-1.  Convert to homogeneous coordinates: $p_h = [x, y, z, 1]^T$.
-2.  Multiply: $p'_h = T \times p_h$.
-3.  Convert back: $p' = [p'_x, p'_y, p'_z]^T$.
+### Task 2: Transform a Point
+*   Implement `transformPoint(T, p)`.
+    *   Input: `Eigen::Matrix4d T`, `Eigen::Vector3d p`.
+    *   Output: `Eigen::Vector3d p_new`.
+    *   Method:
+        1.  Convert $p$ to homogeneous $p_h = [x, y, z, 1]^T$.
+        2.  Multiply $p'_h = T \times p_h$.
+        3.  Extract first 3 components (divide by w if w!=1, but for rigid bodies w=1).
+    *   *Shortcut:* In Eigen, `T * p.homogeneous()` works if you cast back.
 
-## Implementation Tasks
+### Task 3: Chain Transforms (Non-Commutative!)
+*   Create $T_1$: Translation (1, 0, 0).
+*   Create $T_2$: Rotation Z (90 deg).
+*   Compute $A = T_1 \times T_2$.
+*   Compute $B = T_2 \times T_1$.
+*   Apply both to point origin $(0,0,0)$.
+*   *Observation:* $A$ means "Rotate then Translate" (in global frame) or "Translate then Rotate" (in local)?
+    *   Standard Rule: $T_A T_B p$ applies $T_B$ first, then $T_A$.
 
-### Task 1: Create SE3
-Implement a function that takes a $3 \times 3$ rotation and $3 \times 1$ translation and returns a $4 \times 4$ matrix.
-
-### Task 2: Apply Transform
-Implement a function that applies $T$ to a 3D point $p$.
-
-### Task 3: Chain Transforms
-Create two transforms $T_1$ (Translation X+1) and $T_2$ (Rotation Z 90 deg). Compute $T_{combined} = T_1 \times T_2$ vs $T_2 \times T_1$.
-
-## Common Pitfalls
-- **Order of Multiplication**: Matrix multiplication is non-commutative. $T_1 T_2$ means apply $T_2$ first (in local frame) or $T_1$ first (in global frame), depending on convention (Pre-multiply vs Post-multiply). In standard column-vector notation $p' = T_2 T_1 p$, $T_1$ is applied first.
+## Verification
+Compile and run.
+```bash
+cd todo
+mkdir build && cd build
+cmake ..
+cmake --build .
+./main
+```

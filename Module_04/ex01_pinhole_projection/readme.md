@@ -8,6 +8,17 @@ Implement the Pinhole Camera Model projection function.
 2.  Perform perspective division ($x/z, y/z$).
 3.  Map 3D points to 2D pixel coordinates.
 
+## Analogy: The Artist's Window
+Imagine you are an artist trying to paint a landscape on a glass window.
+*   **The World ($X, Y, Z$):** The trees and mountains outside.
+*   **The Eye (Camera Center):** Where you are standing.
+*   **The Glass (Image Plane):** The surface you paint on.
+*   **Focal Length ($f$):** The distance between your eye and the glass.
+    *   *Glass close to eye (Small $f$):* You see a wide view (Wide Angle).
+    *   *Glass far from eye (Large $f$):* You see a narrow view (Telephoto).
+*   **Principal Point ($c_x, c_y$):** The exact point on the glass directly in front of your eye.
+*   **Projection:** To paint a tree top, you draw a straight line from your eye to the tree top. Where that line hits the glass is where you paint the dot.
+
 ## Theory & Background
 
 ### Pinhole Model

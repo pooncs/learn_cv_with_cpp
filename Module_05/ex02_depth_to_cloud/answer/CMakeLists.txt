@@ -2,22 +2,20 @@ cmake_minimum_required(VERSION 3.15)
 project(ex02_depth_to_cloud)
 
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(OpenCV REQUIRED)
 find_package(fmt REQUIRED)
 find_package(GTest REQUIRED)
 
 include_directories(include)
-include_directories(${OpenCV_INCLUDE_DIRS})
 
-add_library(depth_util src/depth_util.cpp)
-target_link_libraries(depth_util ${OpenCV_LIBS} fmt::fmt)
+add_library(depth_util_lib src/depth_util.cpp)
+target_link_libraries(depth_util_lib PRIVATE OpenCV::OpenCV fmt::fmt)
 
-add_executable(main src/main.cpp)
-target_link_libraries(main depth_util)
+add_executable(depth_to_cloud src/main.cpp)
+target_link_libraries(depth_to_cloud depth_util_lib OpenCV::OpenCV fmt::fmt)
 
 enable_testing()
-add_executable(run_tests tests/test_depth.cpp)
-target_link_libraries(run_tests depth_util GTest::gtest_main)
-add_test(NAME UnitTests COMMAND run_tests)
+add_executable(unit_tests_bin tests/test_depth.cpp)
+target_link_libraries(unit_tests_bin depth_util_lib GTest::gtest_main OpenCV::OpenCV)
+add_test(NAME UnitTests COMMAND unit_tests_bin)

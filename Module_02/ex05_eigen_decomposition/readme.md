@@ -1,37 +1,59 @@
-# Exercise 05: Eigen Decomposition
+# Exercise 05: Eigen Decomposition (PCA)
 
 ## Goal
 Compute principal axes of a 2D point cloud using Eigenvalues and Eigenvectors.
 
 ## Learning Objectives
-1.  Understand the geometric interpretation of Eigenvectors (Principal Axes).
-2.  Compute the Covariance Matrix of a set of points.
-3.  Use `Eigen::SelfAdjointEigenSolver` for symmetric matrices.
+1.  **Geometric Interpretation:** Eigenvectors = Directions of spread; Eigenvalues = Amount of spread.
+2.  **Covariance Matrix:** How to build it from raw points.
+3.  **Solver:** Using `Eigen::SelfAdjointEigenSolver` (Fast for symmetric matrices).
+
+## Analogy: The Bee Swarm and the Box
+*   **The Data:** A swarm of bees flying in a general direction.
+*   **Eigenvectors:** The sides of the **Bounding Box** that perfectly fits the swarm.
+    *   The longest side (Major Axis) points where the bees are going.
+    *   The shortest side (Minor Axis) shows how tight the formation is.
+*   **Eigenvalues:** The length of those sides.
+    *   Big Eigenvalue = Very spread out.
+    *   Small Eigenvalue = Very flat/thin.
 
 ## Practical Motivation
 **Principal Component Analysis (PCA)** is fundamental in CV:
-- **Orientation Estimation**: Finding the orientation of an object.
-- **Dimensionality Reduction**: Reducing features from high-dim to low-dim.
-- **Normal Estimation**: Estimating surface normals in 3D point clouds.
+*   **Orientation Estimation:** Finding the rotation of an object in an image.
+*   **Normal Estimation:** In 3D, the "flattest" direction (smallest eigenvalue) is the surface normal.
+*   **Dimensionality Reduction:** Compressing face images (Eigenfaces).
 
-## Theory & Background
+## Step-by-Step Instructions
 
-### Covariance Matrix
-Given a set of centered points $P$ (columns are points), the covariance matrix is:
-$$ \Sigma = \frac{1}{N-1} P P^T $$
-The eigenvectors of $\Sigma$ represent the directions of maximum variance. The eigenvalues represent the magnitude of variance in those directions.
+### Task 1: Generate Data
+Open `src/main.cpp`.
+*   We have a set of random 2D points stretched along a diagonal.
+*   *Already implemented:* `generate_points()`.
 
-## Implementation Tasks
+### Task 2: Compute Mean and Center Data
+1.  Compute the **Mean (Centroid)** of all points.
+2.  Subtract the mean from every point to get **Centered Points**.
+    *   *Why?* PCA requires data to be centered at (0,0).
 
-### Task 1: Compute Mean and Center Data
-Calculate the centroid of the point cloud and subtract it from all points.
+### Task 3: Compute Covariance Matrix
+1.  Compute the covariance matrix $\Sigma = \frac{1}{N-1} \sum (p_i)(p_i)^T$.
+2.  Since points are centered, this is roughly $X X^T$ (if X is $2 \times N$).
 
-### Task 2: Compute Covariance Matrix
-Compute $\Sigma = \frac{1}{N-1} \sum (p_i - \mu)(p_i - \mu)^T$.
+### Task 4: Eigen Decomposition
+1.  Use `Eigen::SelfAdjointEigenSolver<Eigen::Matrix2d> solver(covariance)`.
+2.  Get eigenvalues: `solver.eigenvalues()`.
+3.  Get eigenvectors: `solver.eigenvectors()`.
+4.  **Crucial Note:** Eigen sorts results in **increasing order**.
+    *   Index 0: Smallest Eigenvalue (Minor Axis).
+    *   Index 1: Largest Eigenvalue (Major Axis).
 
-### Task 3: Eigen Decomposition
-Use `Eigen::SelfAdjointEigenSolver` to find eigenvalues and eigenvectors of $\Sigma$.
-
-## Common Pitfalls
-- Forgetting to center the data before computing $PP^T$.
-- Eigen sorts eigenvalues in **increasing** order (smallest first). Usually, we want the largest (last).
+## Verification
+Compile and run.
+```bash
+cd todo
+mkdir build && cd build
+cmake ..
+cmake --build .
+./main
+```
+Output should show the computed mean and the principal direction (which should roughly match the diagonal direction of the data).

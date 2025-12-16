@@ -2,15 +2,21 @@ cmake_minimum_required(VERSION 3.15)
 project(ex06_inference_execution_answer CXX)
 
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(CUDAToolkit REQUIRED)
+find_package(TensorRT QUIET)
+find_package(CUDAToolkit QUIET)
 
-find_path(TRT_INCLUDE_DIR NvInfer.h HINTS $ENV{TensorRT_ROOT} PATH_SUFFIXES include)
-find_library(TRT_LIB nvinfer HINTS $ENV{TensorRT_ROOT} PATH_SUFFIXES lib lib64)
+add_executable(trt_inference src/main.cpp)
 
-add_executable(trt_infer src/main.cpp)
-if (TRT_LIB)
-    target_include_directories(trt_infer PRIVATE ${TRT_INCLUDE_DIR})
-    target_link_libraries(trt_infer PRIVATE ${TRT_LIB} CUDA::cudart)
+if (TensorRT_FOUND)
+    target_link_libraries(trt_inference PRIVATE TensorRT::nvinfer)
 endif()
+
+if (CUDAToolkit_FOUND)
+    target_link_libraries(trt_inference PRIVATE CUDA::cudart)
+endif()
+
+# Testing
+enable_testing()
+add_executable(test_inference tests/test_inference.cpp)
+add_test(NAME InferenceLogicTest COMMAND test_inference)

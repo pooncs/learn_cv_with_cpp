@@ -4,40 +4,49 @@
 Extract and manipulate Regions of Interest (ROI) using `.block()`, `.row()`, and `.col()`.
 
 ## Learning Objectives
-1.  Understand how to access sub-matrices (blocks) in Eigen.
-2.  Differentiate between fixed-size blocks (compile-time optimized) and dynamic blocks.
-3.  Modify specific regions of a matrix in-place.
+1.  **Block Access:** Extract sub-matrices efficiently.
+2.  **Fixed vs. Dynamic Blocks:** Use templates `.block<rows, cols>(i, j)` for speed when size is known.
+3.  **In-Place Modification:** Writing to a block updates the original matrix.
+
+## Analogy: The Window Frame
+*   **The Matrix:** A large wall of numbered bricks.
+*   **The Block (`.block()`):** You hold up a rectangular **Window Frame** against the wall.
+    *   You can read the numbers inside the frame.
+    *   If you spray paint inside the frame, **the actual wall changes**.
+    *   Moving the frame (changing indices) lets you access different parts without rebuilding the wall.
 
 ## Practical Motivation
-In Computer Vision, we often need to:
-- Crop an image (extract a sub-matrix).
-- Copy a small patch into a larger image.
-- Access the top-left $3 \times 3$ rotation part of a $4 \times 4$ pose matrix.
+In Computer Vision:
+*   **Cropping:** Extracting a face from a photo.
+*   **Patching:** Copying a watermark into an image.
+*   **Pose Extraction:** Taking the top-left $3 \times 3$ (Rotation) from a $4 \times 4$ Transformation matrix.
 
-## Theory & Background
-
-### The Block Method
-- **Dynamic**: `.block(i, j, p, q)` starts at $(i, j)$ with size $p \times q$.
-- **Fixed**: `.block<p, q>(i, j)` is faster if $p, q$ are known at compile time.
-
-### Rows and Columns
-- `.row(i)`: The i-th row.
-- `.col(j)`: The j-th column.
-
-### Vector Blocks
-- `.head(n)`, `.tail(n)`, `.segment(i, n)` for vectors.
-
-## Implementation Tasks
+## Step-by-Step Instructions
 
 ### Task 1: Extract 2x2 Block
-Given a $4 \times 4$ matrix, extract the $2 \times 2$ block starting at $(1, 1)$.
+Open `src/main.cpp`.
+*   Create a $4 \times 4$ matrix filled with numbers (e.g., 0 to 15).
+*   **Goal:** Extract the center $2 \times 2$ block (Starting at row 1, col 1).
+*   Use `m.block<2, 2>(1, 1)` (Fixed size) or `m.block(1, 1, 2, 2)` (Dynamic).
+*   Print it.
 
 ### Task 2: Set Row to Zero
-Set the 3rd row (index 2) of a matrix to zeros.
+*   **Goal:** Clear the 3rd row (index 2).
+*   Use `m.row(2).setZero()`.
+*   Print the modified matrix.
 
 ### Task 3: Paste Block
-Create a small $2 \times 2$ matrix of ones and paste it into the bottom-right corner of a $4 \times 4$ matrix.
+*   Create a small $2 \times 2$ matrix of Ones.
+*   **Goal:** Paste it into the bottom-right corner of the $4 \times 4$ matrix.
+*   Use `m.bottomRightCorner(2, 2) = smallMat;` or `m.block(2, 2, 2, 2) = smallMat;`.
+*   Print the result.
 
-## Common Pitfalls
-- **Indices**: 0-based indexing. `block(i, j, rows, cols)` args order.
-- **Reference vs Copy**: `block()` returns an expression (view). Assigning it to a `MatrixXd` creates a copy. Assigning it to `Ref<MatrixXd>` or using it in an expression avoids copy.
+## Verification
+Compile and run.
+```bash
+cd todo
+mkdir build && cd build
+cmake ..
+cmake --build .
+./main
+```

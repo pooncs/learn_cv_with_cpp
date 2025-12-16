@@ -11,6 +11,16 @@ Create a simple 3D viewer using a library like OpenGL (via GLFW) or Open3D.
 2.  Implement a simple "LookAt" camera.
 3.  Draw points on an image canvas.
 
+## Analogy: The Shadow Puppet Show
+*   **The Object:** The point cloud (Puppet).
+*   **The Camera:** Your eye (The Light Source).
+*   **The Screen:** The 2D image you want to create.
+*   **MVP Matrix (The Math):**
+    *   **Model:** Moving the puppet around the room (Local -> World).
+    *   **View:** Moving yourself around the room to get a better angle (World -> Camera).
+    *   **Projection:** How the shadow shrinks when the puppet moves far away (Perspective).
+*   **Rasterization:** Drawing a dot on the screen where the shadow falls.
+
 ## Theory & Background
 
 ### MVP Matrix

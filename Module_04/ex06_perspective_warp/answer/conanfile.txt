@@ -1,6 +1,5 @@
 [requires]
-opencv/4.8.1
-fmt/10.1.1
+opencv/4.5.5
 gtest/1.14.0
 
 [generators]

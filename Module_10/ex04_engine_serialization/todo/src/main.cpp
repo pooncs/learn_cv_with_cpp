@@ -1,20 +1,23 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <memory>
+// #include <NvInfer.h>
 
-// TODO: Include NvInfer.h
+// TODO: Implement Logger
 
 int main() {
-    // TODO: Define Logger
-    
-    // TODO: Read engine file ("simple_model.engine") into buffer
-    
-    // TODO: Create IRuntime
-    
-    // TODO: Deserialize Engine
-    
-    // TODO: Inspect bindings
-    
-    std::cout << "Engine Serialization Exercise" << std::endl;
+    std::cout << "Loading TensorRT Engine Exercise" << std::endl;
+
+    // TODO: Read "model.engine" file into a buffer (vector<char>)
+
+    // TODO: Create Runtime
+
+    // TODO: Deserialize Engine from buffer
+
+    // TODO: Create Execution Context
+
+    // TODO: Print success message
+
     return 0;
 }

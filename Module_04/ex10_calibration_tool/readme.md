@@ -9,6 +9,16 @@ Develop a complete application that calibrates a camera from a video stream.
 3.  Collect valid frames and run `calibrateCamera`.
 4.  Save results to YAML/JSON.
 
+## Analogy: The Eye Exam
+*   **The Patient:** Your Camera.
+*   **The Doctor:** This Software.
+*   **The Eye Chart:** The Chessboard.
+*   **The Process:**
+    1.  **Diagnosis:** The doctor asks the patient to look at the chart from different angles, distances, and tilts.
+    2.  **Recording:** The doctor takes notes on how the patient sees the chart vs. what the chart actually looks like.
+    3.  **Prescription:** The doctor calculates the "glasses" needed (Intrinsics and Distortion coefficients) to make the patient see the world perfectly straight.
+    4.  **The Card:** The result is saved to a file (`calibration.yml`) so other programs can use these "glasses".
+
 ## Practical Motivation
 This is the "Hello World" of real-world CV systems. Before doing anything with a camera, you must calibrate it.
 

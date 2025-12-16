@@ -8,6 +8,12 @@ Compute rectification transforms given two camera matrices.
 2.  Use `cv::stereoRectify` to align epipolar lines horizontally.
 3.  Compute Undistort+Rectify maps.
 
+## Analogy: The Binoculars Alignment
+*   **Stereo Vision:** You have two eyes (cameras).
+*   **The Problem:** If one eye looks slightly up and the other looks slightly down (squinting), it's incredibly hard to match images. "Is that tree in my left eye the same as the one in my right eye?" You have to search everywhere.
+*   **Rectification:** It's like mechanically locking both eyes to look perfectly straight ahead, parallel to each other.
+*   **The Benefit:** Now, to find the match for a pixel in the left eye, you just have to scan the **same horizontal row** in the right eye. You never have to look up or down. This makes depth calculation 100x faster.
+
 ## Practical Motivation
 Stereo matching algorithms (Block Matching) assume rectified images where corresponding points lie on the same scanline ($y_L = y_R$).
 

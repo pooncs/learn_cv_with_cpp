@@ -4,35 +4,54 @@
 Implement Dilation and Erosion manually on binary images.
 
 ## Learning Objectives
-1.  Understand Morphological operations as set operations.
-2.  Implement min/max filters.
-3.  Use structuring elements.
+1.  **Set Operations:** Treating images as sets of pixels.
+2.  **Structuring Element:** The shape of the tool (Square, Circle, Cross).
+3.  **Opening & Closing:** Combining operations to clean noise.
+
+## Analogy: The Virus and the Siege
+*   **Dilation (The Virus):**
+    *   **Rule:** If *any* of your neighbors are sick (White/255), you get sick too.
+    *   **Effect:** White regions grow. Small black holes are filled.
+*   **Erosion (The Siege):**
+    *   **Rule:** You can only survive if *all* your neighbors are allies (White/255). If even one enemy (Black/0) touches you, you fall.
+    *   **Effect:** White regions shrink. Small white noise dots disappear.
 
 ## Practical Motivation
-- **Noise Removal**: Opening (Erosion then Dilation) removes small noise dots.
-- **Hole Filling**: Closing (Dilation then Erosion) fills small holes.
-- **Boundary Extraction**: Dilated - Eroded.
+*   **Noise Removal:** "Opening" (Erosion followed by Dilation) removes salt noise (white dots) without changing the size of large objects.
+*   **Hole Filling:** "Closing" (Dilation followed by Erosion) fills pepper noise (black holes).
+*   **Boundary Extraction:** `Dilated - Original` gives you the outline of the object.
 
-## Theory & Background
-
-### Dilation
-$$ (A \oplus B)(x, y) = \max_{(i, j) \in B} A(x+i, y+j) $$
-Expands white regions.
-
-### Erosion
-$$ (A \ominus B)(x, y) = \min_{(i, j) \in B} A(x+i, y+j) $$
-Shrinks white regions.
-
-## Implementation Tasks
+## Step-by-Step Instructions
 
 ### Task 1: Dilate
-Implement dilation using a $3 \times 3$ square structuring element (all 1s).
-For each pixel, if any neighbor is 1 (255), the output is 1 (255).
+Open `src/main.cpp`.
+*   Implement `custom_dilate(Mat& src, Mat& dst)`.
+*   Structuring Element: $3 \times 3$ square.
+*   Logic:
+    *   For each pixel $(y, x)$:
+    *   Check 8 neighbors + center.
+    *   If `max(neighbors) == 255`, set `dst(y, x) = 255`.
+    *   Else `0`.
 
 ### Task 2: Erode
-Implement erosion.
-For each pixel, if all neighbors are 1 (255), the output is 1 (255). Otherwise 0.
+*   Implement `custom_erode(Mat& src, Mat& dst)`.
+*   Logic:
+    *   For each pixel $(y, x)$:
+    *   Check 8 neighbors + center.
+    *   If `min(neighbors) == 255` (All are white), set `dst(y, x) = 255`.
+    *   Else `0`.
 
-## Common Pitfalls
-- Border handling (assume 0 for dilation, 1 for erosion to avoid growing/shrinking from border).
-- In-place modification: You need a separate output buffer.
+### Task 3: Opening (Noise Removal)
+*   Create an image with random noise.
+*   Apply `custom_erode` then `custom_dilate`.
+*   Verify noise is gone.
+
+## Verification
+Compile and run.
+```bash
+cd todo
+mkdir build && cd build
+cmake ..
+cmake --build .
+./main
+```

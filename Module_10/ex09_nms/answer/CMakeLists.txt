@@ -6,5 +6,16 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(OpenCV REQUIRED)
 
-add_executable(nms_demo src/main.cpp)
+include_directories(include)
+
+# Main Application
+add_executable(nms_demo src/main.cpp src/nms.cpp)
 target_link_libraries(nms_demo PRIVATE OpenCV::opencv)
+
+# Testing
+enable_testing()
+add_executable(nms_test tests/test_nms.cpp src/nms.cpp)
+target_link_libraries(nms_test PRIVATE OpenCV::opencv)
+
+add_test(NAME IoUTest COMMAND nms_test iou)
+add_test(NAME NMSTest COMMAND nms_test nms)

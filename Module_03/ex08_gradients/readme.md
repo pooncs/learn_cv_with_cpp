@@ -4,31 +4,55 @@
 Compute Sobel X and Y derivatives and gradient magnitude/orientation.
 
 ## Learning Objectives
-1.  Understand image derivatives as convolution with finite difference kernels.
-2.  Compute Gradient Magnitude and Orientation.
-3.  Visualize gradients.
+1.  **Derivatives:** How to find changes in intensity.
+2.  **Magnitude:** How "strong" is the edge?
+3.  **Orientation:** Which direction is the edge facing?
+
+## Analogy: The Hiker's Map
+*   **The Image:** A topographic map. Bright pixels are mountain peaks. Dark pixels are valleys.
+*   **Gradient ($G_x, G_y$):** The slope of the ground where you are standing.
+    *   $G_x$: Slope in the East-West direction.
+    *   $G_y$: Slope in the North-South direction.
+*   **Magnitude ($M = \sqrt{G_x^2 + G_y^2}$):** **Steepness**.
+    *   High Magnitude = A Cliff (Edge).
+    *   Low Magnitude = Flat ground.
+*   **Orientation ($\theta = \text{atan2}(G_y, G_x)$):** **Compass Direction**.
+    *   "Which way is uphill?"
 
 ## Practical Motivation
-Gradients are the basis of edge detection (Canny), feature extraction (HOG, SIFT), and optical flow.
+*   **Edge Detection:** Edges are just cliffs in the image intensity map.
+*   **Feature Extraction:** SIFT and HOG descriptors are basically histograms of these "uphill directions".
 
-## Theory & Background
-
-### Sobel Operators
-$$ G_x = \begin{bmatrix} -1 & 0 & 1 \\ -2 & 0 & 2 \\ -1 & 0 & 1 \end{bmatrix} * I $$
-$$ G_y = \begin{bmatrix} -1 & -2 & -1 \\ 0 & 0 & 0 \\ 1 & 2 & 1 \end{bmatrix} * I $$
-
-### Magnitude & Angle
-$$ M = \sqrt{G_x^2 + G_y^2} $$
-$$ \theta = \arctan(G_y / G_x) $$
-
-## Implementation Tasks
+## Step-by-Step Instructions
 
 ### Task 1: Sobel X and Y
-Compute $G_x$ and $G_y$ using OpenCV's `Sobel` or `filter2D`.
+Open `src/main.cpp`.
+*   Compute $G_x$ and $G_y$.
+*   Use `cv::Sobel(src, dst, ddepth, dx, dy, ksize)`.
+*   **Critical:** Use `ddepth = CV_16S` or `CV_32F`. Why?
+    *   If pixel goes from Bright (255) to Dark (0), the derivative is negative (-255).
+    *   `uint8` cannot hold negative numbers. It will wrap around or clip.
 
-### Task 2: Magnitude and Angle
-Compute magnitude and orientation (in degrees).
+### Task 2: Compute Magnitude
+*   $M = \sqrt{G_x^2 + G_y^2}$.
+*   Use `cv::magnitude(Gx, Gy, M)`. (Requires float inputs).
+*   Convert $M$ back to `CV_8U` to visualize it (Normalize or clip).
 
-## Common Pitfalls
-- **Data Types**: Gradients can be negative. Use `CV_16S` or `CV_32F`. Do not use `CV_8U` for intermediate results.
-- **Angle Range**: `atan2` returns $[-\pi, \pi]$. Map to $[0, 360)$ or $[0, 180)$.
+### Task 3: Compute Orientation
+*   $\theta = \text{atan2}(G_y, G_x)$.
+*   Use `cv::phase(Gx, Gy, angle, true)` (true = degrees).
+
+### Task 4: Visualization
+*   Show $G_x$ (convert to 8U absolute value).
+*   Show $G_y$.
+*   Show Magnitude.
+
+## Verification
+Compile and run.
+```bash
+cd todo
+mkdir build && cd build
+cmake ..
+cmake --build .
+./main
+```

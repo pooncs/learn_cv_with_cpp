@@ -8,6 +8,15 @@ Implement Voxel Grid downsampling to reduce point cloud density.
 2.  Map float coordinates to integer voxel indices.
 3.  Compute centroid of points within each voxel.
 
+## Analogy: The Minecraft Converter
+*   **Real World:** Curves are smooth, and atoms are tiny.
+*   **Minecraft (Voxel World):** Everything is made of big blocks.
+*   **The Process:** To turn a real statue into a Minecraft statue:
+    1.  Imagine a grid of 1x1x1 meter blocks over the statue.
+    2.  If a block contains part of the statue, you place **one** block there.
+    3.  **Averaging:** If the real statue had a nose, a chin, and a mouth all inside one block, they just become **one** block in the center.
+    4.  **Result:** You still see the shape, but with way fewer "parts" (points).
+
 ## Theory & Background
 
 ### Voxel Grid

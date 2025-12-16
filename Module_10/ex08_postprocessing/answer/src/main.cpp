@@ -1,7 +1,7 @@
 #include <iostream>
 #include <vector>
-#include <opencv2/opencv.hpp>
 #include <algorithm>
+#include <opencv2/opencv.hpp>
 
 struct Detection {
     cv::Rect box;
@@ -9,81 +9,76 @@ struct Detection {
     int classId;
 };
 
-// Data layout assumption: [Batch=1, Channels=(4 coords + classes), Anchors]
-// But typical YOLOv8 export might be [1, 84, 8400].
-// We iterate over 8400 anchors. For each, we check 80 classes.
-std::vector<Detection> postprocess(float* data, int num_anchors, int num_classes, float conf_threshold) {
-    std::vector<Detection> detections;
-    int dimensions = 4 + num_classes; // e.g. 4 + 80 = 84
+// Simulate YOLOv8 output: [1, 84, 8400] -> flattened
+// For simplicity in C++, we often prefer [8400, 84] (Rows = Anchors, Cols = Features)
+// Features: cx, cy, w, h, class0_score, class1_score, ...
+void postprocess(float* data, int rows, int dimensions, float confThreshold, std::vector<Detection>& output) {
+    for (int i = 0; i < rows; ++i) {
+        float* sample = data + i * dimensions;
 
-    // Iterate over anchors
-    for (int i = 0; i < num_anchors; ++i) {
-        // Data is column-major or row-major?
-        // Usually YOLOv8 output is [1, 84, 8400].
-        // To access anchor 'i':
-        // cx = data[0 * num_anchors + i]
-        // cy = data[1 * num_anchors + i]
-        // w  = data[2 * num_anchors + i]
-        // h  = data[3 * num_anchors + i]
-        // class scores = data[4... * num_anchors + i]
+        // Find best class score
+        // YOLOv8: first 4 are box, rest are classes
+        float* classesScores = sample + 4;
+        int numClasses = dimensions - 4;
+        
+        int bestClassId = -1;
+        float bestConf = -1.0f;
 
-        float cx = data[0 * num_anchors + i];
-        float cy = data[1 * num_anchors + i];
-        float w  = data[2 * num_anchors + i];
-        float h  = data[3 * num_anchors + i];
-
-        // Find max class score
-        float max_score = -1.0f;
-        int max_class_id = -1;
-
-        for (int c = 0; c < num_classes; ++c) {
-            float score = data[(4 + c) * num_anchors + i];
-            if (score > max_score) {
-                max_score = score;
-                max_class_id = c;
+        for (int c = 0; c < numClasses; ++c) {
+            if (classesScores[c] > bestConf) {
+                bestConf = classesScores[c];
+                bestClassId = c;
             }
         }
 
-        if (max_score > conf_threshold) {
-            int left = static_cast<int>(cx - w / 2);
-            int top = static_cast<int>(cy - h / 2);
+        if (bestConf > confThreshold) {
+            float cx = sample[0];
+            float cy = sample[1];
+            float w = sample[2];
+            float h = sample[3];
+
+            int left = static_cast<int>(cx - w * 0.5f);
+            int top = static_cast<int>(cy - h * 0.5f);
             int width = static_cast<int>(w);
             int height = static_cast<int>(h);
 
-            detections.push_back({cv::Rect(left, top, width, height), max_score, max_class_id});
+            output.push_back({cv::Rect(left, top, width, height), bestConf, bestClassId});
         }
     }
-
-    return detections;
 }
 
 int main() {
-    const int num_anchors = 10;
-    const int num_classes = 2; // e.g., Person, Car
-    const int dims = 4 + num_classes;
+    std::cout << "Post-processing Demo" << std::endl;
+
+    const int rows = 5; // Small number for demo
+    const int numClasses = 2;
+    const int dimensions = 4 + numClasses; // 6
     
-    // Create dummy data: [1, 6, 10] flat array
-    // Layout: 6 rows (cx, cy, w, h, c0, c1), 10 columns (anchors)
-    std::vector<float> data(dims * num_anchors, 0.0f);
+    // Create dummy data: 5 rows (anchors), 6 columns (features)
+    std::vector<float> data(rows * dimensions, 0.0f);
 
-    // Make anchor 5 a detection
-    // cx=100, cy=100, w=50, h=50
-    // class 1 score = 0.9
-    int idx = 5;
-    data[0 * num_anchors + idx] = 100.0f;
-    data[1 * num_anchors + idx] = 100.0f;
-    data[2 * num_anchors + idx] = 50.0f;
-    data[3 * num_anchors + idx] = 50.0f;
-    data[4 * num_anchors + idx] = 0.1f; // Class 0
-    data[5 * num_anchors + idx] = 0.9f; // Class 1
+    // Row 2: A valid detection
+    // cx=100, cy=100, w=50, h=50, class0=0.1, class1=0.9
+    int targetIdx = 2;
+    data[targetIdx * dimensions + 0] = 100.0f;
+    data[targetIdx * dimensions + 1] = 100.0f;
+    data[targetIdx * dimensions + 2] = 50.0f;
+    data[targetIdx * dimensions + 3] = 50.0f;
+    data[targetIdx * dimensions + 4] = 0.1f;
+    data[targetIdx * dimensions + 5] = 0.9f;
 
-    auto dets = postprocess(data.data(), num_anchors, num_classes, 0.5f);
+    std::vector<Detection> dets;
+    postprocess(data.data(), rows, dimensions, 0.5f, dets);
 
-    std::cout << "Detections found: " << dets.size() << std::endl;
-    for (const auto& det : dets) {
-        std::cout << "Class: " << det.classId 
-                  << " Conf: " << det.conf 
-                  << " Box: " << det.box << std::endl;
+    std::cout << "Found " << dets.size() << " detections." << std::endl;
+    for (const auto& d : dets) {
+        std::cout << "Box: " << d.box << ", Conf: " << d.conf << ", Class: " << d.classId << std::endl;
+    }
+
+    if (dets.size() == 1 && dets[0].classId == 1) {
+        std::cout << "SUCCESS: Detection parsed correctly." << std::endl;
+    } else {
+        std::cout << "FAIL: Incorrect parsing." << std::endl;
     }
 
     return 0;

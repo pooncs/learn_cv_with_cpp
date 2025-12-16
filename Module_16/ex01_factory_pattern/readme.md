@@ -1,50 +1,38 @@
-# Exercise 01: Factory Pattern for Algorithms
+# Exercise 01: Factory Pattern
 
 ## Goal
-Implement a `ModuleFactory` that creates instances of image processing algorithms (e.g., "EdgeDetector", "Thresholder") based on a string identifier. This allows the application to be configured dynamically (e.g., from a JSON file) without recompiling.
+Implement a `ModuleFactory` to create algorithms (like Filters) by string name without hardcoding the class types in the main logic.
 
 ## Learning Objectives
-1.  **Factory Method:** Understand how to decouple object creation from usage.
-2.  **Registration:** Implement a mechanism to register new algorithms into the factory automatically or statically.
-3.  **Polymorphism:** Use a common interface (`IAlgorithm`) for all products.
-4.  **Smart Pointers:** Return `std::unique_ptr<IAlgorithm>` to manage ownership.
+1.  **Factory Pattern:** Encapsulate object creation.
+2.  **Polymorphism:** Use a common interface (`IFilter`) for different implementations.
+3.  **Registration:** Learn how to register classes into the factory (static registration vs dynamic).
 
 ## Practical Motivation
-Imagine a CV pipeline where the user selects "Canny" or "Sobel" from a dropdown menu. You don't want a giant `if-else` block in your main loop. A Factory Pattern allows you to say `create("Canny")` and get the correct object.
-
-## Theory: The Factory Pattern
-The factory maintains a map of `string -> CreatorFunction`.
-When `create(name)` is called, it looks up the creator function and invokes it.
-
-```cpp
-using Creator = std::function<std::unique_ptr<IAlgorithm>()>;
-std::map<std::string, Creator> registry;
+In a large CV pipeline, you might want to load a configuration file like:
+```yaml
+pipeline:
+  - type: "Blur"
+    kernel_size: 5
+  - type: "Edge"
+    threshold: 100
 ```
+Your code needs to read the string "Blur" and instantiate a `BlurFilter` class. You can't write `if (type == "Blur") new BlurFilter()` for every possible filter, or your code will be a mess of if-else statements. A Factory solves this.
 
 ## Step-by-Step Instructions
+1.  **Define Interface:** Create `IFilter` with a pure virtual method `process(cv::Mat& img)`.
+2.  **Implement Concrete Classes:** Create `BlurFilter` and `EdgeFilter` implementing `IFilter`.
+3.  **Create Factory:**
+    *   Use a `std::map<std::string, std::function<std::unique_ptr<IFilter>()>>` to store creators.
+    *   Implement `registerFilter(name, creator)` and `createFilter(name)`.
+4.  **Use it:** Register your filters, then ask the factory to create them by name.
 
-### Task 1: Define the Interface
-Create `IAlgorithm` with a pure virtual method `process(const cv::Mat& input)`.
-
-### Task 2: Implement Concrete Classes
-Create `CannyDetector` and `SobelDetector` implementing `IAlgorithm`.
-
-### Task 3: Implement the Factory
-Create `AlgorithmFactory` with:
-*   `register_algo(name, creator_func)`
-*   `create(name)`
-
-### Task 4: Registration
-Register your algorithms in `main` (or via static initialization).
-
-## Code Hints
-*   **Lambda Creators:**
-    ```cpp
-    factory.register_algo("Canny", []() { return std::make_unique<CannyDetector>(); });
-    ```
-*   **Error Handling:** Throw an exception if the requested algorithm name is not found.
+## Todo
+1.  Define the `IFilter` interface.
+2.  Implement the `ModuleFactory` class.
+3.  Register at least two filters.
+4.  Demonstrate creating and using them.
 
 ## Verification
-*   Test 1: Create "Canny" and verify it returns a valid pointer.
-*   Test 2: Call `process()` and check the output (console print is fine for mock).
-*   Test 3: Request "Unknown" and verify it throws.
+*   Calling `create("Blur")` should return a valid `BlurFilter`.
+*   Calling `create("Unknown")` should return null or throw an error.

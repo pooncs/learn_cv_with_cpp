@@ -14,6 +14,8 @@ Most real-world systems are non-linear.
 -   **Sensors:** Radar/Lidar gives range ($r$) and bearing ($\phi$), not Cartesian $(x,y)$.
     $r = \sqrt{x^2 + y^2}$, $\phi = \arctan(y/x)$.
 
+**Analogy:** Think of walking in a dark room. You know roughly how much you stepped (prediction), and you touch a wall (measurement). A Linear Kalman Filter assumes the walls are always straight and you walk in straight lines. An Extended Kalman Filter allows for curved walls and walking in circles by approximating them as small straight lines (tangents) at each step.
+
 ## Theory: EKF Equations
 **State:** $x_k = f(x_{k-1}, u_k) + w_k$
 **Measurement:** $z_k = h(x_k) + v_k$

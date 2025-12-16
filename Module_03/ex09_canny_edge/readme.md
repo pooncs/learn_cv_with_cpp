@@ -4,35 +4,60 @@
 Step-by-step implementation of Non-Maximum Suppression (NMS) for Canny Edge Detection.
 
 ## Learning Objectives
-1.  Understand the Canny Edge Detection pipeline.
-2.  Implement NMS to thin edges to 1-pixel width.
-3.  Understand Hysteresis Thresholding (conceptually).
+1.  **The Pipeline:** Blur -> Gradient -> NMS -> Hysteresis.
+2.  **Thinning:** Why gradients give "thick" edges and how to make them 1-pixel wide.
+3.  **Directional Check:** Checking neighbors based on gradient angle.
+
+## Analogy: The Ridge Walker
+*   **Gradient Magnitude:** Imagine the image is a mountain range. Edges are the sharp ridges.
+*   **The Problem:** The ridge is 5 meters wide (Thick edge). We want a thin line on a map.
+*   **NMS (The Test):** You stand at a point on the ridge.
+    *   Look perpendicular to the ridge (Gradient Direction).
+    *   If you step forward or backward, do you go downhill?
+    *   **Yes:** You are at the **Local Peak**. You are the Edge.
+    *   **No (One neighbor is higher):** You are just on the slope. You are NOT the edge. **Suppress (Set to 0).**
 
 ## Practical Motivation
-Raw gradients produce thick edges. NMS thins them by keeping only the local maximum along the gradient direction. This is critical for precise edge localization.
+*   **Precision:** Thick edges are bad for measurements (e.g., "How wide is this part?").
+*   **Feature Matching:** We want precise locations for corners and lines.
 
-## Theory & Background
+## Step-by-Step Instructions
 
-### The Canny Pipeline
-1.  **Gaussian Blur**: Reduce noise.
-2.  **Gradients**: Compute magnitude $M$ and orientation $\theta$.
-3.  **Non-Maximum Suppression**:
-    For each pixel $(x,y)$, check neighbors in the direction of the gradient $\theta$.
-    If $M(x,y)$ is smaller than neighbors, set to 0.
-4.  **Hysteresis Thresholding**: Use high and low thresholds to link edges.
+### Task 1: Setup
+Open `src/main.cpp`.
+*   Load image, convert to Gray, apply GaussianBlur.
+*   Compute Gradients ($G_x, G_y$), Magnitude ($M$), and Angle ($\theta$).
+*   *Hint:* Use `cv::cartToPolar(Gx, Gy, mag, angle, true)`.
 
-### NMS Logic
-Quantize $\theta$ to 4 directions:
-- 0 deg (Horizontal) -> Check Left/Right neighbors.
-- 45 deg (Diagonal) -> Check TopRight/BottomLeft.
-- 90 deg (Vertical) -> Check Top/Bottom.
-- 135 deg (Diagonal) -> Check TopLeft/BottomRight.
+### Task 2: Quantize Angles
+*   NMS usually simplifies directions to 4 cases (0, 45, 90, 135 degrees).
+*   Map $\theta$ to these 4 bins.
+    *   $(-22.5, 22.5) \to 0^\circ$ (Horizontal gradient -> Vertical Edge).
+    *   $(22.5, 67.5) \to 45^\circ$.
+    *   etc.
 
-## Implementation Tasks
+### Task 3: Implement NMS
+*   Create `nms_img` initialized to zeros.
+*   Loop over pixels (skip borders).
+*   For each pixel $(y, x)$:
+    *   Get direction $d$.
+    *   Get values of two neighbors along $d$ (e.g., if $0^\circ$, neighbors are $(y, x-1)$ and $(y, x+1)$).
+    *   If $M(y,x) \ge M(neighbor1)$ AND $M(y,x) \ge M(neighbor2)$:
+        *   `nms_img(y,x) = M(y,x)` (Keep it).
+    *   Else:
+        *   `nms_img(y,x) = 0` (Suppress it).
 
-### Task 1: NMS
-Implement a function that takes Magnitude and Angle maps, and returns the thinned edge map.
+### Task 4: Compare
+*   Run `cv::Canny` on the original image.
+*   Compare your NMS result (which is not binary yet, it still has float magnitudes) with Canny output.
 
-## Common Pitfalls
-- **Interpolation**: Ideally, NMS interpolates neighbor values for exact gradient direction. Simplifying to 8-neighborhood (0, 45, 90, 135) is a common approximation.
-- **Border Handling**: Skip borders to avoid out-of-bounds access.
+## Verification
+Compile and run.
+```bash
+cd todo
+mkdir build && cd build
+cmake ..
+cmake --build .
+./main
+```
+The NMS output should look like thin "skeleton" lines of the edges.

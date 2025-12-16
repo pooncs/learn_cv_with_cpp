@@ -4,34 +4,53 @@
 Implement robust rotation interpolation (SLERP) using Eigen Quaternions.
 
 ## Learning Objectives
-1.  Understand Quaternions as a rotation representation ($w, x, y, z$).
-2.  Perform Spherical Linear Interpolation (SLERP) between two rotations.
-3.  Avoid common pitfalls like antipodal ambiguity (q and -q represent same rotation).
+1.  **Quaternion Basics:** Understanding the 4D number system ($w, x, y, z$) used for 3D rotation.
+2.  **SLERP (Spherical Linear Interpolation):** Smoothly rotating from A to B.
+3.  **Why Quaternions?** No Gimbal Lock, compact, easy to interpolate.
+
+## Analogy: The Shortest Flight Path
+*   **The Problem:** You want to rotate a camera from "Looking Left" to "Looking Right".
+*   **Linear Interpolation (Lerp) on Matrices:** Like flying from London to Tokyo by **digging a tunnel through the Earth**.
+    *   The path is straight, but the "speed" (angular velocity) varies wildly. It distorts the rotation midway.
+*   **SLERP (on Quaternions):** Like flying along the **surface of the Earth** (Great Circle).
+    *   The path is the shortest arc.
+    *   The speed is constant.
+    *   The transition is perfectly smooth.
 
 ## Practical Motivation
-When animating a camera or robot end-effector from orientation A to B, linear interpolation of Euler angles or matrices produces bad results (speed changes, non-shortest path). SLERP provides a smooth, constant-speed interpolation along the shortest arc on the 4D hypersphere.
+When animating a camera or robot end-effector, you need smooth motion.
+*   **Interpolation:** "At time $t=0$, be at orientation A. At $t=1$, be at B."
+*   If you use Euler angles, the camera might swing wildly (Gimbal Lock).
+*   If you use Matrices, you have to orthonormalize them constantly.
+*   **Quaternions** are the standard for interpolation in Computer Graphics and Robotics (ROS uses them everywhere).
 
-## Theory & Background
-
-### Quaternion Basics
-A unit quaternion $q = w + xi + yj + zk$ represents a rotation.
-- **Unit Norm**: $||q|| = 1$.
-- **Composition**: $q_{combined} = q_2 * q_1$.
-- **Rotation**: $v_{rotated} = q * v * q^{-1}$.
-
-### SLERP (Spherical Linear Interpolation)
-$$ \text{Slerp}(q_1, q_2, t) = \frac{\sin((1-t)\Omega)}{\sin(\Omega)} q_1 + \frac{\sin(t\Omega)}{\sin(\Omega)} q_2 $$
-where $\cos(\Omega) = q_1 \cdot q_2$.
-
-## Implementation Tasks
+## Step-by-Step Instructions
 
 ### Task 1: Create Quaternions
-Create two quaternions from Axis-Angle or Euler angles.
+Open `src/main.cpp`.
+*   Create two rotations:
+    *   $Q_1$: Identity (No rotation).
+    *   $Q_2$: Rotation of 90 degrees around the Z-axis.
+*   Use `Eigen::Quaterniond(Eigen::AngleAxisd(...))`.
 
-### Task 2: Implement SLERP
-Use `Eigen::Quaternion::slerp` (or implement manually if you want a challenge, but using library function is standard).
-Verify that at $t=0.5$, the rotation is halfway.
+### Task 2: Interpolate (SLERP)
+*   Interpolate between $Q_1$ and $Q_2$ at $t = 0.5$ (Halfway).
+*   Use `q1.slerp(0.5, q2)`.
+*   Convert the result to Euler angles or Axis-Angle to verify it is indeed 45 degrees around Z.
 
-## Common Pitfalls
-- **Normalization**: Quaternions must be normalized to represent valid rotations.
-- **Double Cover**: $q$ and $-q$ are the same rotation. When interpolating, if $q_1 \cdot q_2 < 0$, negate one of them to take the shortest path. Eigen's `slerp` usually handles this.
+### Task 3: The "Long Way" Around (Optional)
+*   Try interpolating between $Q_1$ and $-Q_2$.
+*   Note: $Q$ and $-Q$ represent the **same orientation** but are on opposite sides of the 4D sphere.
+*   Interpolating to $-Q_2$ takes the "long way" (270 degrees) instead of the short way (90 degrees).
+*   *Eigen's slerp handles this check automatically, but it's good to know.*
+
+## Verification
+Compile and run.
+```bash
+cd todo
+mkdir build && cd build
+cmake ..
+cmake --build .
+./main
+```
+Output should show the interpolated angle being exactly halfway.

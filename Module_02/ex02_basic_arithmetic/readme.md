@@ -4,47 +4,50 @@
 Implement element-wise operations vs. matrix multiplication.
 
 ## Learning Objectives
-1.  Understand the distinction between algebraic matrix multiplication (`*`) and element-wise multiplication (`.array() * .array()`).
-2.  Perform matrix addition, subtraction, and scaling.
-3.  Implement broadcasting (adding a vector to each row/column).
+1.  **Algebraic vs. Element-wise:** Know when to use `*` vs `.cwiseProduct()` (or `.array() * .array()`).
+2.  **Broadcasting:** Efficiently add a vector to every column/row without loops.
+3.  **Scaling:** Multiplying a matrix by a scalar.
+
+## Analogy: The Mixer vs. The Cookie Cutter
+*   **Matrix Multiplication (`A * B`):** Like a **Mixer**.
+    *   Rows of A mix with Columns of B.
+    *   The result is a transformation.
+    *   Used for: Rotating points, changing coordinate systems.
+*   **Element-wise Multiplication (`A.array() * B.array()`):** Like a **Cookie Cutter / Stencil**.
+    *   You apply a value to the exact same spot in the other matrix.
+    *   Used for: Masking images (Pixel A * Mask A), adjusting weights per-pixel.
 
 ## Practical Motivation
-In equations like $y = Ax + b$, we use matrix multiplication.
-However, in image processing, we often want to multiply two images pixel-by-pixel (e.g., masking), which is an element-wise operation.
-Confusing these two is a very common bug.
+*   **Matrix Mult:** $y = Ax + b$ (Projecting a 3D point to 2D screen).
+*   **Element-wise:** $I_{new} = I_{old} * Mask$ (Removing background from an image).
 
-## Theory & Background
-
-### Matrix vs Array
-Eigen separates linear algebra operations (Matrix) from coefficient-wise operations (Array).
-- **Matrix Multiplication**: `m1 * m2` performs standard matrix product.
-- **Element-wise**: To perform element-wise operations, you must convert the Matrix to an Array view using `.array()`.
-  ```cpp
-  Eigen::MatrixXd A, B;
-  // ... init ...
-  Eigen::MatrixXd C = A.array() * B.array(); // Element-wise product
-  Eigen::MatrixXd D = A.cwiseProduct(B);     // Alternative syntax for element-wise
-  ```
-
-### Broadcasting
-Broadcasting allows adding a vector to every column or row of a matrix.
-```cpp
-Eigen::MatrixXd M(2, 3);
-Eigen::VectorXd v(2);
-M.colwise() += v; // Add v to every column
-```
-
-## Implementation Tasks
+## Step-by-Step Instructions
 
 ### Task 1: Matrix Multiplication
-Given two $2 \times 2$ matrices $A$ and $B$, compute $C = A \times B$.
+Open `src/main.cpp`.
+*   Initialize two $2 \times 2$ matrices $A$ and $B$.
+*   Compute $C = A \times B$ using the `*` operator.
+*   Print the result.
 
 ### Task 2: Element-wise Multiplication
-Given the same $A$ and $B$, compute $D$ where $D_{ij} = A_{ij} \cdot B_{ij}$.
+*   Compute $D$ where $D_{ij} = A_{ij} \cdot B_{ij}$.
+*   Use `.array()` view: `A.array() * B.array()`.
+*   Alternatively, use `A.cwiseProduct(B)`.
+*   Print the result. Notice how it differs from Task 1.
 
 ### Task 3: Broadcasting
-Create a $3 \times 4$ matrix and add a size-3 vector to each of its columns.
+*   Create a $3 \times 4$ matrix $M$.
+*   Create a vector $v$ of size 3.
+*   **Goal:** Add $v$ to **every column** of $M$.
+*   **Method:** Use `.colwise() += v`.
+*   Print the result.
 
-## Common Pitfalls
-- Using `*` when you meant element-wise multiplication.
-- Dimension mismatch in broadcasting (adding a size-4 vector to columns of size 3).
+## Verification
+Compile and run.
+```bash
+cd todo
+mkdir build && cd build
+cmake ..
+cmake --build .
+./main
+```

@@ -11,6 +11,8 @@ Implement NMS to remove overlapping duplicate detections.
 ## Practical Motivation
 Object detectors often output multiple boxes for the same object (e.g., slightly shifted). NMS keeps only the best one.
 
+**Analogy:** Imagine a group of paparazzi taking photos of the same celebrity. You have 50 photos, but you only want the best one for the front page. NMS is like sorting the photos by quality (confidence), picking the best one, and then discarding all other photos that look almost identical (high overlap) to the best one. You repeat this for every celebrity found.
+
 ## Theory: NMS Algorithm
 1.  Sort detections by confidence (descending).
 2.  Pick the highest confidence box (A).

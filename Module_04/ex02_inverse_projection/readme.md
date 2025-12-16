@@ -8,6 +8,13 @@ Map a 2D pixel coordinate to a 3D ray in camera space.
 2.  Convert pixel coordinates to normalized device coordinates (NDC).
 3.  Recover 3D position given depth $Z$.
 
+## Analogy: The Laser Pointer
+Think of the camera in reverse. Instead of receiving light, imagine it shoots light.
+*   **Inverse Projection:** You stand at the camera center (Eye) and point a laser pointer through a specific pixel $(u, v)$ on the glass window.
+*   **The Ray:** The beam of light shoots out into the world. It goes on forever in a straight line.
+*   **The Ambiguity:** Just by looking at the pixel, you don't know what the laser hit. It could be a fly on the window, a tree 10 meters away, or the moon.
+*   **Depth ($Z$):** To find the exact 3D point, you must know the distance (Depth). If someone tells you "The wall is 5 meters away", you can calculate exactly where the laser dot is.
+
 ## Theory & Background
 
 ### Inverse Projection
