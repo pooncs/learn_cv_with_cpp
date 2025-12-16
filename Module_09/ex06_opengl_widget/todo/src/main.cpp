@@ -1,8 +1,14 @@
 #include <QApplication>
-#include <QWidget>
-int main(int argc, char** argv) {
+#include <QOpenGLWidget>
+#include <QOpenGLFunctions>
+
+// TODO: Create MyGLWidget inheriting from QOpenGLWidget and QOpenGLFunctions
+// class MyGLWidget : public QOpenGLWidget, protected QOpenGLFunctions { ... }
+
+int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
-    QWidget w;
-    w.show();
+
+    // TODO: Instantiate and show MyGLWidget
+    
     return app.exec();
 }
