@@ -31,7 +31,7 @@ Each module contains **10 independent exercises** progressing from simple to com
 * Code hints including recommended functions and usage examples
 
 ## Prerequisites
-4) Use conan as the package manager. Use this build command to install the dependencies for MSVC, otherwise clang can also be used (installed in C:\Program Files\LLVM):
+Use conan as the package manager. Use this build command to install the dependencies for MSVC, otherwise clang can also be used (installed in C:\Program Files\LLVM):
 conan install . -s compiler.cppstd=17 --output-folder=build --build=missing --settings=build_type=Release
 cmake --preset conan-default
 cmake --build build --config Release 

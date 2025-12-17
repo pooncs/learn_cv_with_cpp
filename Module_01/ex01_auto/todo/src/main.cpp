@@ -2,11 +2,7 @@
 #include <vector>
 #include <map>
 #include <string>
-
-// Legacy function with verbose types
-std::map<std::string, std::vector<int>> get_data() {
-    return {{"ids", {1, 2, 3}}, {"scores", {10, 20, 30}}};
-}
+#include "data_utils.hpp"
 
 int main() {
     // Task 1: Refactor using auto
